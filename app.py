@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 
+
 # ============================================================
 # CONFIGURACIÓN DE LA PÁGINA
 # ============================================================
@@ -25,12 +26,15 @@ st.sidebar.image(
 
 modulos = st.sidebar.selectbox(
     "Seleccione un módulo:",
-    ["Modulo 1: Home", "Modulo 2: Carga el datased"]
+    [
+        "Modulo 1: Home",
+        "Modulo 2: Carga del dataset"
+    ]
 )
 
 
 # ============================================================
-# HOME
+# MÓDULO 1: HOME
 # ============================================================
 
 if modulos == "Modulo 1: Home":
@@ -48,7 +52,7 @@ if modulos == "Modulo 1: Home":
     st.divider()
 
     # --------------------------------------------------------
-    # OBJETIVO
+    # OBJETIVO DEL PROYECTO
     # --------------------------------------------------------
 
     st.subheader("🎯 Objetivo del proyecto")
@@ -82,7 +86,7 @@ if modulos == "Modulo 1: Home":
         st.write("2026")
 
     # --------------------------------------------------------
-    # DATASET
+    # EXPLICACIÓN DEL DATASET
     # --------------------------------------------------------
 
     st.subheader("📊 Breve explicación del dataset")
@@ -97,7 +101,7 @@ if modulos == "Modulo 1: Home":
     )
 
     # --------------------------------------------------------
-    # TECNOLOGÍAS
+    # TECNOLOGÍAS UTILIZADAS
     # --------------------------------------------------------
 
     st.subheader("🛠️ Tecnologías utilizadas")
@@ -106,10 +110,13 @@ if modulos == "Modulo 1: Home":
         """
         - **Python:** lenguaje de programación utilizado para desarrollar
           el proyecto.
+          
         - **Pandas:** biblioteca utilizada para la manipulación y análisis
           de los datos.
+          
         - **Streamlit:** herramienta utilizada para crear la aplicación
           web interactiva.
+          
         - **GitHub:** plataforma utilizada para almacenar y gestionar
           el código del proyecto.
         """
@@ -117,34 +124,20 @@ if modulos == "Modulo 1: Home":
 
 
 # ============================================================
-# MÓDULO 1
-# ============================================================
-
-elif modulos == "Modulo 2: Carga del dataset":
-
-    st.title("📘 Módulo 1")
-
-    st.info(
-        "Aquí puedes colocar el contenido que ya desarrollaste "
-        "para el Módulo 1."
-    )
-
-
-# ============================================================
-# MÓDULO 2
+# MÓDULO 2: CARGA DEL DATASET
 # ============================================================
 
 elif modulos == "Modulo 2: Carga del dataset":
 
     st.title(
-        "📊 Módulo 2: Carga del Dataset y Análisis Exploratorio de Datos"
+        "📊 Módulo 2: Carga del Dataset"
     )
 
     st.write(
         """
-        En este módulo se realiza la carga del dataset y un Análisis
-        Exploratorio de Datos (EDA), utilizando herramientas de Python,
-        Pandas, Matplotlib y Streamlit.
+        En este módulo se realiza la carga del dataset BankMarketing.csv,
+        la validación del archivo, una vista previa de los datos y la
+        identificación de sus dimensiones.
         """
     )
 
@@ -162,13 +155,13 @@ elif modulos == "Modulo 2: Carga del dataset":
     )
 
     # --------------------------------------------------------
-    # VALIDACIÓN
+    # VALIDACIÓN DEL ARCHIVO
     # --------------------------------------------------------
 
     if archivo is None:
 
         st.warning(
-            "⚠️ Debe cargar un archivo CSV para comenzar el análisis."
+            "⚠️ Debe cargar un archivo CSV para comenzar."
         )
 
         st.info(
@@ -216,10 +209,14 @@ elif modulos == "Modulo 2: Carga del dataset":
         st.stop()
 
     # --------------------------------------------------------
-    # VISTA PREVIA
+    # VISTA PREVIA DEL DATASET
     # --------------------------------------------------------
 
-    st.subheader("👀 Vista previa del dataset")
+    st.header("👀 Vista previa del dataset")
+
+    st.write(
+        "A continuación se muestran las primeras 5 filas del dataset:"
+    )
 
     st.dataframe(
         df.head(),
@@ -227,10 +224,10 @@ elif modulos == "Modulo 2: Carga del dataset":
     )
 
     # --------------------------------------------------------
-    # DIMENSIONES
+    # DIMENSIONES DEL DATASET
     # --------------------------------------------------------
 
-    st.subheader("📏 Dimensiones del dataset")
+    st.header("📏 Dimensiones del dataset")
 
     col1, col2 = st.columns(2)
 
@@ -247,3 +244,24 @@ elif modulos == "Modulo 2: Carga del dataset":
             "Número de columnas",
             df.shape[1]
         )
+
+    # --------------------------------------------------------
+    # INFORMACIÓN ADICIONAL
+    # --------------------------------------------------------
+
+    st.header("ℹ️ Información del archivo")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.write("**Nombre del archivo:**")
+        st.write(archivo.name)
+
+    with col2:
+
+        st.write("**Tamaño del archivo:**")
+        st.write(f"{archivo.size / 1024:.2f} KB")
+
+
+
