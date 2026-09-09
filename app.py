@@ -47,3 +47,7 @@ if modulos == "Home":
         - **GitHub:** plataforma utilizada para almacenar y gestionar el código del proyecto.
         """
     )
+
+
+read.csv("https://raw.githubusercontent.com/FADECK18/DMC-EXAMEN-FINAL/refs/heads/main/BankMarketing.csv")
+
