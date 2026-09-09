@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # -----------------------------
 # CONFIGURACIÓN DE LA PÁGINA
@@ -83,11 +84,6 @@ if modulos == "Home":
 # MÓDULO 1
 # -----------------------------
 elif modulos == "Modulo 1":
-
-import streamlit as st
-import pandas as pd
-import matplotlib.pyplot as plt
-
 
 # ============================================================
 # CLASE DE PROGRAMACIÓN ORIENTADA A OBJETOS
