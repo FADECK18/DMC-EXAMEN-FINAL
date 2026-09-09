@@ -25,7 +25,7 @@ st.sidebar.image(
 
 modulos = st.sidebar.selectbox(
     "Seleccione un módulo:",
-    ["Home", "Modulo 1", "Modulo 2", "Modulo 3"]
+    ["Home", "Modulo 1", "Modulo 2"]
 )
 
 
@@ -33,7 +33,7 @@ modulos = st.sidebar.selectbox(
 # HOME
 # ============================================================
 
-if modulos == "Home":
+if modulos == "Modulo 1":
 
     st.markdown(
         """
@@ -120,7 +120,7 @@ if modulos == "Home":
 # MÓDULO 1
 # ============================================================
 
-elif modulos == "Modulo 1":
+elif modulos == "Modulo 2":
 
     st.title("📘 Módulo 1")
 
