@@ -1,4 +1,4 @@
-import streamlist as st 
+import streamlist as st
 
 st.sidebar.title("Módulo")
 
