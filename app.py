@@ -74,5 +74,3 @@ if modulos == "Home":
         - **GitHub:** plataforma utilizada para almacenar y gestionar el código del proyecto.
         """
     )
-```
-
