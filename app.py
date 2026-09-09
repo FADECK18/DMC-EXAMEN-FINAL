@@ -10,7 +10,7 @@ modulos = st.sidebar.selectbox(
 
 if modulos == "Home":
 
-        st.markdown("<h1 align='center'>APLICACIÓN INTERACTIVA CONSTRUIDA EN PYTHON UTILIZANDO STREAMLIT</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 align='center'>APLICACIÓN INTERACTIVA CONSTRUIDA EN PYTHON UTILIZANDO STREAMLIT</h1>", unsafe_allow_html=True)
 
     st.subheader("Nombre completo del estudiante")
     st.markdown("Farid Estefano Garibay Fabian")
