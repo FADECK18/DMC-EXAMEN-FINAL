@@ -1,9 +1,8 @@
-import io
-import os
-
+import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import streamlit as st
+import io
+import os
 
 
 # ============================================================
@@ -11,236 +10,150 @@ import streamlit as st
 # ============================================================
 
 st.set_page_config(
-    page_title="Bank Marketing - Python Fundamentals",
+    page_title="Proyecto Python Fundamentals",
     page_icon="📊",
     layout="wide"
 )
 
 
 # ============================================================
-# CLASE DE ANÁLISIS
+# CLASE POO - DataAnalyzer
 # ============================================================
 
 class DataAnalyzer:
     """
-    Clase encargada de encapsular las principales operaciones
-    de análisis exploratorio del dataset.
+    Clase encargada de realizar operaciones de análisis
+    exploratorio sobre un DataFrame.
     """
 
     def __init__(self, dataframe):
         self.df = dataframe
 
-    # --------------------------------------------------------
-    # CLASIFICACIÓN DE VARIABLES
-    # --------------------------------------------------------
-
     def clasificar_variables(self):
-        numericas = self.df.select_dtypes(
+        """
+        Clasifica las variables en numéricas y categóricas.
+        """
+
+        variables_numericas = self.df.select_dtypes(
             include=["number"]
         ).columns.tolist()
 
-        categoricas = self.df.select_dtypes(
+        variables_categoricas = self.df.select_dtypes(
             include=["object", "category", "bool"]
         ).columns.tolist()
 
-        return numericas, categoricas
-
-    # --------------------------------------------------------
-    # ESTADÍSTICAS DESCRIPTIVAS
-    # --------------------------------------------------------
+        return variables_numericas, variables_categoricas
 
     def estadisticas_descriptivas(self):
-        return self.df.describe(include="all").T
+        """
+        Devuelve las estadísticas descriptivas de las
+        variables numéricas.
+        """
 
-    # --------------------------------------------------------
-    # RESUMEN DE UNA VARIABLE
-    # --------------------------------------------------------
+        variables_numericas, _ = self.clasificar_variables()
+
+        return self.df[variables_numericas].describe()
 
     def resumen_variable(self, variable):
-        serie = self.df[variable]
+        """
+        Calcula estadísticas básicas para una variable numérica.
+        """
 
-        resumen = {
-            "Variable": variable,
-            "Tipo de dato": str(serie.dtype),
-            "Valores únicos": serie.nunique(),
-            "Valores faltantes": serie.isna().sum()
+        serie = self.df[variable].dropna()
+
+        moda = serie.mode()
+
+        if not moda.empty:
+            moda_valor = moda.iloc[0]
+        else:
+            moda_valor = "Sin moda"
+
+        return {
+            "media": serie.mean(),
+            "mediana": serie.median(),
+            "moda": moda_valor,
+            "minimo": serie.min(),
+            "maximo": serie.max(),
+            "desviacion": serie.std()
         }
 
-        if pd.api.types.is_numeric_dtype(serie):
-            resumen["Media"] = serie.mean()
-            resumen["Mediana"] = serie.median()
-            resumen["Moda"] = serie.mode().iloc[0] if not serie.mode().empty else None
-            resumen["Mínimo"] = serie.min()
-            resumen["Máximo"] = serie.max()
-            resumen["Desviación estándar"] = serie.std()
-
-        return resumen
-
-    # --------------------------------------------------------
-    # CONTEOS CATEGÓRICOS
-    # --------------------------------------------------------
-
     def conteos_categoricos(self, variable):
-        return self.df[variable].value_counts(dropna=False)
+        """
+        Devuelve los conteos de una variable categórica.
+        """
 
-    # --------------------------------------------------------
-    # PROPORCIONES CATEGÓRICAS
-    # --------------------------------------------------------
+        return self.df[variable].value_counts()
 
     def proporciones_categoricas(self, variable):
+        """
+        Devuelve las proporciones porcentuales de una variable
+        categórica.
+        """
+
         return (
             self.df[variable]
-            .value_counts(normalize=True, dropna=False)
+            .value_counts(normalize=True)
             .mul(100)
             .round(2)
         )
 
-    # --------------------------------------------------------
-    # VALORES FALTANTES
-    # --------------------------------------------------------
-
     def valores_faltantes(self):
-        faltantes = self.df.isna().sum()
+        """
+        Calcula los valores faltantes por variable.
+        """
 
-        porcentaje = (
-            self.df.isna().mean() * 100
-        ).round(2)
-
-        resultado = pd.DataFrame({
-            "Valores faltantes": faltantes,
-            "Porcentaje (%)": porcentaje
-        })
-
-        return resultado.sort_values(
-            by="Valores faltantes",
-            ascending=False
-        )
-
-    # --------------------------------------------------------
-    # COMPARACIÓN DE GRUPOS
-    # --------------------------------------------------------
+        return self.df.isnull().sum()
 
     def comparacion_grupos(self, variable_numerica, variable_grupo):
-        return (
-            self.df
-            .groupby(variable_grupo)[variable_numerica]
-            .agg(
-                Media="mean",
-                Mediana="median",
-                Mínimo="min",
-                Máximo="max",
-                Desviación="std",
-                Cantidad="count"
-            )
-            .round(2)
+        """
+        Compara una variable numérica entre grupos.
+        """
+
+        return self.df.groupby(variable_grupo)[
+            variable_numerica
+        ].agg(
+            ["mean", "median", "min", "max"]
         )
 
-    # --------------------------------------------------------
-    # TABLA CRUZADA
-    # --------------------------------------------------------
-
     def tabla_cruzada(self, variable_1, variable_2):
+        """
+        Genera una tabla de contingencia entre dos variables
+        categóricas.
+        """
+
         return pd.crosstab(
             self.df[variable_1],
             self.df[variable_2]
         )
 
-    # --------------------------------------------------------
-    # TABLA DE PROPORCIONES
-    # --------------------------------------------------------
-
     def tabla_proporciones(self, variable_1, variable_2):
-        return pd.crosstab(
-            self.df[variable_1],
-            self.df[variable_2],
-            normalize="index"
-        ).mul(100).round(2)
+        """
+        Genera una tabla de proporciones por fila.
+        """
 
-    # --------------------------------------------------------
-    # HISTOGRAMA
-    # --------------------------------------------------------
-
-    def histograma(self, variable, bins=20):
-        fig, ax = plt.subplots()
-
-        ax.hist(
-            self.df[variable].dropna(),
-            bins=bins
+        return (
+            pd.crosstab(
+                self.df[variable_1],
+                self.df[variable_2],
+                normalize="index"
+            )
+            .mul(100)
+            .round(2)
         )
-
-        ax.set_title(
-            f"Distribución de {variable}"
-        )
-        ax.set_xlabel(variable)
-        ax.set_ylabel("Frecuencia")
-
-        return fig
-
-    # --------------------------------------------------------
-    # GRÁFICO DE BARRAS
-    # --------------------------------------------------------
-
-    def grafico_barras(self, variable):
-        conteos = self.df[variable].value_counts()
-
-        fig, ax = plt.subplots()
-
-        conteos.plot(
-            kind="bar",
-            ax=ax
-        )
-
-        ax.set_title(
-            f"Frecuencia de {variable}"
-        )
-        ax.set_xlabel(variable)
-        ax.set_ylabel("Cantidad")
-
-        plt.xticks(rotation=45)
-
-        return fig
-
-    # --------------------------------------------------------
-    # BOXPLOT
-    # --------------------------------------------------------
-
-    def boxplot_por_grupo(
-        self,
-        variable_numerica,
-        variable_grupo
-    ):
-        fig, ax = plt.subplots()
-
-        grupos = []
-
-        nombres = self.df[variable_grupo].dropna().unique()
-
-        for grupo in nombres:
-            datos = self.df[
-                self.df[variable_grupo] == grupo
-            ][variable_numerica].dropna()
-
-            grupos.append(datos)
-
-        ax.boxplot(
-            grupos,
-            labels=nombres
-        )
-
-        ax.set_title(
-            f"{variable_numerica} según {variable_grupo}"
-        )
-        ax.set_xlabel(variable_grupo)
-        ax.set_ylabel(variable_numerica)
-
-        return fig
 
 
 # ============================================================
 # SIDEBAR
 # ============================================================
 
-st.sidebar.title("📚 Navegación")
+st.sidebar.title("📚 Módulos")
+
+# Mostrar imagen solo si existe en el repositorio
+if os.path.exists("IMAGEN DMC.png"):
+    st.sidebar.image(
+        "IMAGEN DMC.png",
+        width=100
+    )
 
 modulos = st.sidebar.selectbox(
     "Seleccione un módulo:",
@@ -257,76 +170,92 @@ modulos = st.sidebar.selectbox(
 
 if modulos == "Modulo 1: Home":
 
-    st.title(
-        "APLICACIÓN INTERACTIVA CONSTRUIDA EN PYTHON UTILIZANDO STREAMLIT"
+    st.markdown(
+        """
+        <h1 style="text-align: center;">
+        APLICACIÓN INTERACTIVA CONSTRUIDA EN PYTHON
+        UTILIZANDO STREAMLIT
+        </h1>
+        """,
+        unsafe_allow_html=True
     )
 
-    st.header("🎯 Objetivo del proyecto")
+    st.divider()
+
+    # --------------------------------------------------------
+    # OBJETIVO
+    # --------------------------------------------------------
+
+    st.subheader("🎯 Objetivo del proyecto")
 
     st.write(
         """
-        El objetivo de este proyecto es aplicar los conocimientos
-        adquiridos en el curso **Python Fundamentals** mediante el
-        desarrollo de una aplicación interactiva utilizando Python,
-        Pandas y Streamlit.
-
-        La aplicación permite cargar, organizar, explorar y analizar
-        un conjunto de datos relacionado con campañas de marketing
-        de una institución financiera.
+        El objetivo del proyecto es aplicar los conocimientos adquiridos
+        durante el curso de Python Fundamentals para explorar, organizar
+        y analizar un conjunto de datos mediante herramientas de Python.
         """
     )
 
-    st.divider()
+    # --------------------------------------------------------
+    # DATOS DEL AUTOR
+    # --------------------------------------------------------
 
-    st.header("👨‍💻 Información del proyecto")
+    st.subheader("👤 Datos del autor")
 
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.write("**Autor:** Farid Estefano Garibay Fabian")
-        st.write("**Curso:** Python Fundamentals")
-
-    with col2:
-        st.write("**Año:** 2026")
-        st.write("**Dataset:** BankMarketing.csv")
-
-    st.divider()
-
-    st.header("📊 Sobre el dataset")
-
-    st.write(
-        """
-        El dataset **BankMarketing.csv** contiene información
-        relacionada con clientes y campañas de marketing realizadas
-        por una institución financiera.
-
-        Las variables permiten analizar características de los clientes,
-        información de contacto, resultados de campañas anteriores,
-        duración de llamadas y la aceptación final de la campaña.
-        """
-    )
-
-    st.divider()
-
-    st.header("🛠️ Tecnologías utilizadas")
-
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.info("🐍 Python")
+        st.write("**Nombre completo**")
+        st.write("Farid Estefano Garibay Fabian")
 
     with col2:
-        st.info("🐼 Pandas")
+        st.write("**Curso / Especialización**")
+        st.write("Python Fundamentals")
 
     with col3:
-        st.info("📊 Streamlit")
+        st.write("**Año**")
+        st.write("2026")
 
-    with col4:
-        st.info("🐙 GitHub")
+    # --------------------------------------------------------
+    # DATASET
+    # --------------------------------------------------------
 
-    st.success(
-        "Seleccione el Módulo 2 desde el menú lateral para comenzar "
-        "con la carga y exploración del dataset."
+    st.subheader("📊 Breve explicación del dataset")
+
+    st.write(
+        """
+        El dataset Bank Marketing contiene información relacionada con
+        campañas de marketing telefónico de una institución bancaria.
+
+        Los datos incluyen características de los clientes, información
+        relacionada con las campañas de contacto y el resultado final
+        de la campaña.
+        """
+    )
+
+    # --------------------------------------------------------
+    # TECNOLOGÍAS
+    # --------------------------------------------------------
+
+    st.subheader("🛠️ Tecnologías utilizadas")
+
+    st.markdown(
+        """
+        - **Python:** lenguaje de programación utilizado para desarrollar
+          el proyecto.
+
+        - **Pandas:** biblioteca utilizada para la manipulación y análisis
+          de los datos.
+
+        - **Matplotlib:** biblioteca utilizada para la construcción de
+          visualizaciones.
+
+        - **Streamlit:** herramienta utilizada para crear la aplicación
+          web interactiva.
+
+        - **GitHub:** plataforma utilizada para almacenar y gestionar
+          el código del proyecto.
+        """
     )
 
 
@@ -341,61 +270,8 @@ elif modulos == "Modulo 2: Carga del dataset":
     st.write(
         """
         En este módulo se realiza la carga, validación y exploración
-        del dataset **Bank Marketing**. Se presentan diferentes
-        elementos del análisis exploratorio de datos (EDA) para
-        identificar relaciones y comportamientos relevantes.
-        """
-    )
-
-    st.divider()
-
-    # ========================================================
-    # CONTEXTO DEL DATASET
-    # ========================================================
-
-    st.header("📌 Contexto del dataset")
-
-    st.write(
-        """
-        Se entrega el archivo **BankMarketing.csv**, correspondiente
-        a una institución financiera que busca entender los factores
-        relacionados con la aceptación de sus campañas de marketing.
-
-        Durante los últimos 6 meses, la efectividad de las campañas,
-        medida como:
-
-        **Efectividad = (Ventas / Base) × 100%**
-
-        disminuyó de **12% a 8%**, situación que afectó los bonos de
-        los ejecutivos comerciales.
-
-        Por este motivo, el objetivo de este análisis es estudiar los
-        datos de la última campaña para descubrir relaciones,
-        comportamientos y características relevantes entre las
-        diferentes variables.
-
-        El análisis se desarrolla desde un enfoque exploratorio,
-        buscando generar información útil para la **toma de decisiones**
-        comerciales y para comprender mejor el comportamiento de los
-        clientes.
-        """
-    )
-
-    st.info(
-        """
-        🎯 **Objetivo del análisis**
-
-        Identificar patrones y relaciones relevantes en los datos de
-        la última campaña que puedan contribuir a comprender la caída
-        de efectividad y apoyar futuras decisiones comerciales.
-        """
-    )
-
-    st.warning(
-        """
-        ⚠️ El análisis es exploratorio. Las relaciones encontradas
-        entre variables no deben interpretarse automáticamente como
-        relaciones de causa y efecto.
+        del dataset Bank Marketing. Se presentan los principales
+        elementos del análisis exploratorio de datos (EDA).
         """
     )
 
@@ -411,6 +287,10 @@ elif modulos == "Modulo 2: Carga del dataset":
         "Seleccione el archivo BankMarketing.csv",
         type=["csv"]
     )
+
+    # ========================================================
+    # VALIDACIÓN DEL ARCHIVO
+    # ========================================================
 
     if archivo is None:
 
@@ -428,7 +308,7 @@ elif modulos == "Modulo 2: Carga del dataset":
         st.stop()
 
     # ========================================================
-    # LECTURA DEL ARCHIVO
+    # LECTURA DEL DATASET
     # ========================================================
 
     try:
@@ -438,25 +318,33 @@ elif modulos == "Modulo 2: Carga del dataset":
             sep=";"
         )
 
+        st.success(
+            "✅ El archivo fue cargado correctamente."
+        )
+
     except Exception as e:
 
         st.error(
-            f"❌ No fue posible leer el archivo: {e}"
+            f"❌ Ocurrió un error al cargar el archivo: {e}"
         )
 
         st.stop()
 
     # ========================================================
-    # VALIDACIÓN
+    # VALIDACIÓN DEL DATASET
     # ========================================================
 
     if df.empty:
 
         st.error(
-            "❌ El archivo CSV está vacío."
+            "❌ El archivo fue cargado, pero no contiene datos."
         )
 
         st.stop()
+
+    # ========================================================
+    # VALIDACIÓN DE COLUMNAS
+    # ========================================================
 
     columnas_esperadas = [
         "age",
@@ -490,49 +378,39 @@ elif modulos == "Modulo 2: Carga del dataset":
 
     if columnas_faltantes:
 
-        st.error(
-            "❌ El archivo no contiene todas las columnas esperadas."
+        st.warning(
+            "⚠️ El archivo no contiene todas las columnas "
+            "esperadas del dataset Bank Marketing."
         )
 
         st.write(
-            "Columnas faltantes:",
-            columnas_faltantes
+            "Columnas faltantes:"
         )
 
-        st.stop()
+        st.write(columnas_faltantes)
 
-    st.success(
-        "✅ El archivo fue cargado y validado correctamente."
+    else:
+
+        st.success(
+            "✅ La estructura del dataset corresponde al conjunto "
+            "de datos Bank Marketing."
+        )
+
+    # ========================================================
+    # INFORMACIÓN GENERAL
+    # ========================================================
+
+    st.header("📋 Información del dataset")
+
+    st.write(
+        f"""
+        El dataset contiene **{df.shape[0]:,} filas** y
+        **{df.shape[1]} columnas**.
+        """
     )
 
     # ========================================================
-    # INFORMACIÓN DEL ARCHIVO
-    # ========================================================
-
-    st.header("📄 Información del archivo")
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.metric(
-            "Filas",
-            f"{df.shape[0]:,}"
-        )
-
-    with col2:
-        st.metric(
-            "Columnas",
-            df.shape[1]
-        )
-
-    with col3:
-        st.metric(
-            "Tamaño",
-            f"{archivo.size / 1024:.2f} KB"
-        )
-
-    # ========================================================
-    # PREVISUALIZACIÓN
+    # VISTA PREVIA - HEAD
     # ========================================================
 
     st.subheader("👀 Vista previa del dataset")
@@ -540,891 +418,1412 @@ elif modulos == "Modulo 2: Carga del dataset":
     st.write(
         """
         A continuación se muestran las primeras filas del dataset
-        para verificar visualmente que la información fue cargada
-        correctamente.
+        utilizando el método `head()`.
         """
     )
 
     st.dataframe(
-        df.head(10),
+        df.head(),
         use_container_width=True
     )
 
     # ========================================================
-    # DATASET COMPLETO
+    # VISTA COMPLETA
     # ========================================================
 
-    with st.expander("📋 Mostrar dataset completo"):
+    st.subheader("👀 Vista completa del dataset")
 
-        st.dataframe(
-            df,
-            use_container_width=True
+    st.write(
+        """
+        La siguiente tabla permite visualizar todas las filas y
+        columnas del dataset.
+        """
+    )
+
+    st.dataframe(
+        df,
+        use_container_width=True,
+        height=600
+    )
+
+    # ========================================================
+    # DIMENSIONES
+    # ========================================================
+
+    st.header("📏 Dimensiones del dataset")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.metric(
+            "Número de filas",
+            f"{df.shape[0]:,}"
+        )
+
+    with col2:
+
+        st.metric(
+            "Número de columnas",
+            df.shape[1]
         )
 
     # ========================================================
-    # OBJETO DE ANÁLISIS
+    # INFORMACIÓN DEL ARCHIVO
+    # ========================================================
+
+    st.header("ℹ️ Información del archivo")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.write("**Nombre del archivo:**")
+        st.write(archivo.name)
+
+    with col2:
+
+        st.write("**Tamaño del archivo:**")
+        st.write(
+            f"{archivo.size / 1024:.2f} KB"
+        )
+
+    # ========================================================
+    # CREACIÓN DEL OBJETO POO
     # ========================================================
 
     analyzer = DataAnalyzer(df)
 
+    variables_numericas, variables_categoricas = (
+        analyzer.clasificar_variables()
+    )
+
+    # ========================================================
+    # EDA
+    # ========================================================
+
     st.divider()
 
-    st.header("🔎 Análisis Exploratorio de Datos (EDA)")
+    st.title("🔎 Análisis Exploratorio de Datos (EDA)")
 
     st.write(
         """
-        El siguiente análisis se encuentra organizado en diez
-        secciones para estudiar las principales características,
-        distribuciones y relaciones presentes en el dataset.
+        En esta sección se realiza el análisis exploratorio del
+        dataset Bank Marketing. Se estudian la estructura de los
+        datos, los tipos de variables, las estadísticas descriptivas,
+        los valores faltantes, las distribuciones y las relaciones
+        entre variables.
         """
     )
 
     # ========================================================
-    # TABS DEL EDA
+    # TABS 1 - 10
     # ========================================================
 
-    tabs = st.tabs(
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs(
         [
-            "1. Información general",
-            "2. Clasificación",
-            "3. Estadísticas",
-            "4. Faltantes",
-            "5. Distribuciones",
-            "6. Categóricas",
-            "7. Numérica vs objetivo",
-            "8. Categórica vs objetivo",
-            "9. Análisis dinámico",
-            "10. Hallazgos"
+            "📋 1. Información",
+            "🔢 2. Clasificación",
+            "📊 3. Estadísticas",
+            "⚠️ 4. Faltantes",
+            "📈 5. Numéricas",
+            "📊 6. Categóricas",
+            "🔗 7. Num vs Cat",
+            "🔗 8. Cat vs Cat",
+            "🎛️ 9. Parámetros",
+            "💡 10. Hallazgos"
         ]
     )
 
     # ========================================================
-    # 1. INFORMACIÓN GENERAL
+    # ÍTEM 1
     # ========================================================
 
-    with tabs[0]:
+    with tab1:
 
-        st.subheader(
-            "1. Información general del dataset"
+        st.header(
+            "📋 Ítem 1: Información general del dataset"
         )
 
         st.write(
             """
-            Esta sección permite conocer la estructura del dataset,
-            sus tipos de datos y la cantidad de valores faltantes.
+            En este apartado se presenta información general sobre
+            la estructura del dataset, incluyendo los tipos de datos,
+            la cantidad de registros y los valores faltantes.
             """
         )
+
+        # ----------------------------------------------------
+        # INFO
+        # ----------------------------------------------------
+
+        st.subheader("ℹ️ Información mediante .info()")
+
+        buffer = io.StringIO()
+
+        df.info(
+            buf=buffer
+        )
+
+        st.text(
+            buffer.getvalue()
+        )
+
+        # ----------------------------------------------------
+        # TIPOS
+        # ----------------------------------------------------
+
+        st.subheader("🔤 Tipos de datos")
+
+        tipos_datos = pd.DataFrame(
+            {
+                "Variable": df.columns,
+                "Tipo de dato": df.dtypes.astype(str).values
+            }
+        )
+
+        st.dataframe(
+            tipos_datos,
+            use_container_width=True
+        )
+
+        # ----------------------------------------------------
+        # NULOS
+        # ----------------------------------------------------
+
+        st.subheader("⚠️ Conteo de valores nulos")
+
+        valores_nulos = analyzer.valores_faltantes()
+
+        tabla_nulos = pd.DataFrame(
+            {
+                "Variable": valores_nulos.index,
+                "Valores nulos": valores_nulos.values
+            }
+        )
+
+        st.dataframe(
+            tabla_nulos,
+            use_container_width=True
+        )
+
+        # ----------------------------------------------------
+        # MÉTRICAS
+        # ----------------------------------------------------
 
         col1, col2, col3 = st.columns(3)
 
         with col1:
+
             st.metric(
                 "Filas",
                 f"{df.shape[0]:,}"
             )
 
         with col2:
+
             st.metric(
                 "Columnas",
                 df.shape[1]
             )
 
         with col3:
+
             st.metric(
-                "Valores totales",
-                f"{df.size:,}"
+                "Memoria aproximada",
+                f"{df.memory_usage(deep=True).sum() / 1024**2:.2f} MB"
             )
 
-        st.subheader("Tipos de datos")
 
-        tipos = pd.DataFrame({
-            "Variable": df.columns,
-            "Tipo de dato": [
-                str(tipo)
-                for tipo in df.dtypes
-            ],
-            "Valores únicos": [
-                df[columna].nunique()
-                for columna in df.columns
-            ],
-            "Valores faltantes": [
-                df[columna].isna().sum()
-                for columna in df.columns
-            ]
-        })
+    # ========================================================
+    # ÍTEM 2
+    # ========================================================
 
-        st.dataframe(
-            tipos,
-            use_container_width=True
-        )
+    with tab2:
 
-        st.subheader("Información técnica")
-
-        buffer = io.StringIO()
-
-        df.info(buf=buffer)
-
-        st.text(
-            buffer.getvalue()
+        st.header(
+            "🔢 Ítem 2: Clasificación de variables"
         )
 
         st.write(
             """
-            **Interpretación:** esta información permite verificar
-            si las variables están correctamente almacenadas y conocer
-            la estructura general antes de realizar análisis más
-            específicos.
+            Las variables del dataset se clasifican automáticamente
+            en variables numéricas y categóricas mediante un método
+            de la clase `DataAnalyzer`.
             """
         )
-
-    # ========================================================
-    # 2. CLASIFICACIÓN DE VARIABLES
-    # ========================================================
-
-    with tabs[1]:
-
-        st.subheader(
-            "2. Clasificación de variables"
-        )
-
-        st.write(
-            """
-            Las variables se clasifican en numéricas y categóricas.
-            Esta clasificación permite seleccionar posteriormente
-            las técnicas y gráficos apropiados para cada tipo de dato.
-            """
-        )
-
-        numericas, categoricas = analyzer.clasificar_variables()
 
         col1, col2 = st.columns(2)
 
         with col1:
 
-            st.metric(
-                "Variables numéricas",
-                len(numericas)
+            st.subheader(
+                "🔢 Variables numéricas"
             )
 
-            st.write(numericas)
+            st.metric(
+                "Cantidad",
+                len(variables_numericas)
+            )
+
+            for variable in variables_numericas:
+
+                st.write(
+                    f"• {variable}"
+                )
 
         with col2:
 
-            st.metric(
-                "Variables categóricas",
-                len(categoricas)
+            st.subheader(
+                "🔤 Variables categóricas"
             )
 
-            st.write(categoricas)
+            st.metric(
+                "Cantidad",
+                len(variables_categoricas)
+            )
 
-        clasificacion = pd.DataFrame({
-            "Variable": df.columns,
-            "Tipo": [
-                "Numérica"
-                if columna in numericas
-                else "Categórica"
-                for columna in df.columns
-            ]
-        })
+            for variable in variables_categoricas:
+
+                st.write(
+                    f"• {variable}"
+                )
+
+        st.subheader(
+            "📊 Resumen de clasificación"
+        )
+
+        resumen_variables = pd.DataFrame(
+            {
+                "Tipo de variable": [
+                    "Numéricas",
+                    "Categóricas"
+                ],
+                "Cantidad": [
+                    len(variables_numericas),
+                    len(variables_categoricas)
+                ]
+            }
+        )
 
         st.dataframe(
-            clasificacion,
+            resumen_variables,
             use_container_width=True
+        )
+
+        fig, ax = plt.subplots(
+            figsize=(7, 4)
+        )
+
+        ax.bar(
+            resumen_variables["Tipo de variable"],
+            resumen_variables["Cantidad"]
+        )
+
+        ax.set_title(
+            "Cantidad de variables por tipo"
+        )
+
+        ax.set_xlabel(
+            "Tipo de variable"
+        )
+
+        ax.set_ylabel(
+            "Cantidad"
+        )
+
+        st.pyplot(fig)
+
+        plt.close(fig)
+
+
+    # ========================================================
+    # ÍTEM 3
+    # ========================================================
+
+    with tab3:
+
+        st.header(
+            "📊 Ítem 3: Estadísticas descriptivas"
         )
 
         st.write(
             """
-            **Interpretación:** las variables numéricas permiten
-            estudiar medidas como media, mediana y dispersión,
-            mientras que las variables categóricas permiten estudiar
-            frecuencias, proporciones y diferencias entre grupos.
+            Las estadísticas descriptivas permiten resumir el
+            comportamiento de las variables numéricas mediante
+            medidas de tendencia central y dispersión.
             """
         )
-
-    # ========================================================
-    # 3. ESTADÍSTICAS DESCRIPTIVAS
-    # ========================================================
-
-    with tabs[2]:
 
         st.subheader(
-            "3. Estadísticas descriptivas"
+            "📈 Estadísticas mediante .describe()"
         )
 
-        st.write(
-            """
-            Se calculan estadísticas descriptivas para comprender
-            la tendencia central y dispersión de las variables
-            numéricas.
-            """
-        )
-
-        numericas, _ = analyzer.clasificar_variables()
+        estadisticas = analyzer.estadisticas_descriptivas()
 
         st.dataframe(
-            df[numericas].describe().T.round(2),
+            estadisticas,
             use_container_width=True
         )
 
         st.subheader(
-            "Media, mediana y moda"
+            "🔍 Análisis de una variable"
         )
 
-        variable_stats = st.selectbox(
+        variable = st.selectbox(
             "Seleccione una variable numérica:",
-            numericas
+            variables_numericas,
+            key="variable_item3"
         )
 
         resumen = analyzer.resumen_variable(
-            variable_stats
+            variable
         )
 
         col1, col2, col3 = st.columns(3)
 
         with col1:
+
             st.metric(
                 "Media",
-                f"{resumen['Media']:.2f}"
+                f"{resumen['media']:,.2f}"
             )
 
         with col2:
+
             st.metric(
                 "Mediana",
-                f"{resumen['Mediana']:.2f}"
+                f"{resumen['mediana']:,.2f}"
             )
 
         with col3:
+
+            if isinstance(
+                resumen["moda"],
+                (int, float)
+            ):
+
+                st.metric(
+                    "Moda",
+                    f"{resumen['moda']:,.2f}"
+                )
+
+            else:
+
+                st.metric(
+                    "Moda",
+                    str(resumen["moda"])
+                )
+
+        st.subheader(
+            "📐 Medidas de dispersión"
+        )
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+
             st.metric(
-                "Moda",
-                f"{resumen['Moda']:.2f}"
+                "Mínimo",
+                f"{resumen['minimo']:,.2f}"
             )
 
-        st.write(
-            f"""
-            **Interpretación:** para la variable **{variable_stats}**,
-            la media representa el promedio de los valores, la mediana
-            representa el valor central y la moda corresponde al valor
-            que aparece con mayor frecuencia.
+        with col2:
 
-            La comparación entre media y mediana permite observar si
-            existe una posible asimetría en la distribución.
-            """
-        )
+            st.metric(
+                "Máximo",
+                f"{resumen['maximo']:,.2f}"
+            )
 
-        st.write(
-            f"""
-            La desviación estándar de **{variable_stats}** es de
-            **{resumen['Desviación estándar']:.2f}**, lo que permite
-            evaluar la dispersión de los valores alrededor de su media.
-            """
-        )
+        with col3:
 
-    # ========================================================
-    # 4. VALORES FALTANTES
-    # ========================================================
-
-    with tabs[3]:
+            st.metric(
+                "Desviación estándar",
+                f"{resumen['desviacion']:,.2f}"
+            )
 
         st.subheader(
-            "4. Análisis de valores faltantes"
+            "📝 Interpretación"
         )
 
-        st.write(
-            """
-            Se revisa la existencia de datos faltantes para determinar
-            si pueden afectar la interpretación de los resultados.
-            """
-        )
+        if resumen["media"] > resumen["mediana"]:
 
-        faltantes = analyzer.valores_faltantes()
+            interpretacion = (
+                "La media es superior a la mediana, lo que puede "
+                "sugerir cierta asimetría hacia valores altos."
+            )
 
-        st.dataframe(
-            faltantes,
-            use_container_width=True
-        )
+        elif resumen["media"] < resumen["mediana"]:
 
-        total_faltantes = int(
-            df.isna().sum().sum()
-        )
-
-        if total_faltantes == 0:
-
-            st.success(
-                "✅ No se encontraron valores faltantes en el dataset."
+            interpretacion = (
+                "La media es inferior a la mediana, lo que puede "
+                "sugerir cierta asimetría hacia valores bajos."
             )
 
         else:
 
-            st.warning(
-                f"⚠️ Se encontraron {total_faltantes:,} valores faltantes."
+            interpretacion = (
+                "La media y la mediana son similares, indicando "
+                "una distribución relativamente equilibrada."
             )
 
-            faltantes_grafico = (
-                faltantes[
-                    faltantes["Valores faltantes"] > 0
-                ]
-            )
-
-            if not faltantes_grafico.empty:
-
-                fig, ax = plt.subplots()
-
-                faltantes_grafico[
-                    "Valores faltantes"
-                ].plot(
-                    kind="bar",
-                    ax=ax
-                )
-
-                ax.set_title(
-                    "Valores faltantes por variable"
-                )
-
-                ax.set_xlabel("Variable")
-                ax.set_ylabel("Cantidad")
-
-                plt.xticks(rotation=45)
-
-                st.pyplot(fig)
-
-                plt.close(fig)
-
-        st.write(
-            """
-            **Interpretación:** cuando existen valores faltantes,
-            es importante considerar su cantidad y distribución antes
-            de realizar conclusiones. En caso contrario, los análisis
-            pueden realizarse sobre la información disponible.
-            """
-        )
-
-    # ========================================================
-    # 5. DISTRIBUCIONES NUMÉRICAS
-    # ========================================================
-
-    with tabs[4]:
-
-        st.subheader(
-            "5. Distribuciones de variables numéricas"
-        )
-
-        st.write(
-            """
-            Los histogramas permiten visualizar cómo se distribuyen
-            los valores de las principales variables numéricas.
-            """
-        )
-
-        numericas, _ = analyzer.clasificar_variables()
-
-        variables_hist = st.multiselect(
-            "Seleccione las variables numéricas:",
-            numericas,
-            default=[
-                variable
-                for variable in [
-                    "age",
-                    "duration",
-                    "campaign"
-                ]
-                if variable in numericas
-            ]
-        )
-
-        bins = st.slider(
-            "Número de intervalos del histograma:",
-            min_value=5,
-            max_value=50,
-            value=20
-        )
-
-        if variables_hist:
-
-            columnas = st.columns(
-                min(2, len(variables_hist))
-            )
-
-            for i, variable in enumerate(variables_hist):
-
-                with columnas[i % len(columnas)]:
-
-                    fig = analyzer.histograma(
-                        variable,
-                        bins
-                    )
-
-                    st.pyplot(fig)
-
-                    plt.close(fig)
-
-                    resumen = analyzer.resumen_variable(
-                        variable
-                    )
-
-                    st.write(
-                        f"""
-                        **{variable}:** media =
-                        {resumen['Media']:.2f},
-                        mediana =
-                        {resumen['Mediana']:.2f}.
-                        """
-                    )
-
-        else:
-
-            st.info(
-                "Seleccione al menos una variable."
-            )
-
-    # ========================================================
-    # 6. VARIABLES CATEGÓRICAS
-    # ========================================================
-
-    with tabs[5]:
-
-        st.subheader(
-            "6. Análisis de variables categóricas"
-        )
-
-        st.write(
-            """
-            Se analizan las frecuencias y proporciones de las
-            variables categóricas mediante tablas y gráficos
-            de barras.
-            """
-        )
-
-        _, categoricas = analyzer.clasificar_variables()
-
-        variable_cat = st.selectbox(
-            "Seleccione una variable categórica:",
-            categoricas,
-            index=(
-                categoricas.index("job")
-                if "job" in categoricas
-                else 0
-            )
-        )
-
-        conteos = analyzer.conteos_categoricos(
-            variable_cat
-        )
-
-        proporciones = analyzer.proporciones_categoricas(
-            variable_cat
-        )
-
-        tabla_cat = pd.DataFrame({
-            "Cantidad": conteos,
-            "Proporción (%)": proporciones
-        })
-
-        st.dataframe(
-            tabla_cat,
-            use_container_width=True
-        )
-
-        fig = analyzer.grafico_barras(
-            variable_cat
-        )
-
-        st.pyplot(fig)
-
-        plt.close(fig)
-
-        st.write(
+        st.info(
             f"""
-            **Interpretación:** la tabla permite identificar qué
-            categorías tienen mayor presencia en la variable
-            **{variable_cat}** y qué porcentaje representan
-            dentro del conjunto de datos.
+            Para **{variable}**, la media es **{resumen['media']:,.2f}**
+            y la mediana es **{resumen['mediana']:,.2f}**.
+
+            La desviación estándar es **{resumen['desviacion']:,.2f}**,
+            lo que permite evaluar la dispersión de los datos.
+
+            {interpretacion}
             """
         )
 
+
     # ========================================================
-    # 7. NUMÉRICA VS Y
+    # ÍTEM 4
     # ========================================================
 
-    with tabs[6]:
+    with tab4:
 
-        st.subheader(
-            "7. Relación entre variable numérica y aceptación"
+        st.header(
+            "⚠️ Ítem 4: Análisis de valores faltantes"
         )
 
         st.write(
             """
-            Se comparan variables numéricas según el resultado de la
-            campaña (`y`), donde `yes` representa aceptación y `no`
-            representa no aceptación.
+            En este apartado se analiza la cantidad de valores
+            faltantes presentes en cada variable.
             """
         )
 
-        numericas, _ = analyzer.clasificar_variables()
+        valores_nulos = analyzer.valores_faltantes()
 
-        variables_preferidas = [
-            variable
-            for variable in [
-                "age",
-                "duration",
-                "campaign"
-            ]
-            if variable in numericas
-        ]
+        total_nulos = valores_nulos.sum()
 
-        variable_num = st.selectbox(
-            "Seleccione una variable numérica:",
-            numericas,
-            index=(
-                numericas.index("duration")
-                if "duration" in numericas
-                else 0
-            )
-        )
-
-        comparacion = analyzer.comparacion_grupos(
-            variable_num,
-            "y"
-        )
-
-        st.dataframe(
-            comparacion,
-            use_container_width=True
-        )
-
-        fig = analyzer.boxplot_por_grupo(
-            variable_num,
-            "y"
-        )
-
-        st.pyplot(fig)
-
-        plt.close(fig)
-
-        if "yes" in df["y"].unique() and "no" in df["y"].unique():
-
-            media_yes = df.loc[
-                df["y"] == "yes",
-                variable_num
-            ].mean()
-
-            media_no = df.loc[
-                df["y"] == "no",
-                variable_num
-            ].mean()
-
-            col1, col2 = st.columns(2)
-
-            with col1:
-                st.metric(
-                    "Media cuando y = yes",
-                    f"{media_yes:.2f}"
-                )
-
-            with col2:
-                st.metric(
-                    "Media cuando y = no",
-                    f"{media_no:.2f}"
-                )
-
-            st.write(
-                f"""
-                **Interpretación:** la variable **{variable_num}**
-                presenta diferencias entre los grupos `yes` y `no`.
-                Esto permite identificar comportamientos asociados
-                con distintos resultados de la campaña.
-
-                Esta diferencia debe interpretarse como una relación
-                observada en los datos y no necesariamente como una
-                relación causal.
-                """
-            )
-
-    # ========================================================
-    # 8. CATEGÓRICA VS Y
-    # ========================================================
-
-    with tabs[7]:
-
-        st.subheader(
-            "8. Relación entre variable categórica y aceptación"
-        )
-
-        st.write(
-            """
-            Se estudia cómo cambia la aceptación de la campaña
-            según diferentes categorías de clientes o características
-            de contacto.
-            """
-        )
-
-        _, categoricas = analyzer.clasificar_variables()
-
-        categoricas_sin_y = [
-            variable
-            for variable in categoricas
-            if variable != "y"
-        ]
-
-        variable_cat_y = st.selectbox(
-            "Seleccione una variable categórica:",
-            categoricas_sin_y,
-            index=(
-                categoricas_sin_y.index("education")
-                if "education" in categoricas_sin_y
-                else 0
-            )
-        )
-
-        tabla = analyzer.tabla_cruzada(
-            variable_cat_y,
-            "y"
-        )
-
-        tabla_prop = analyzer.tabla_proporciones(
-            variable_cat_y,
-            "y"
-        )
-
-        st.subheader("Frecuencias")
-
-        st.dataframe(
-            tabla,
-            use_container_width=True
-        )
-
-        st.subheader(
-            "Proporciones de aceptación por categoría (%)"
-        )
-
-        st.dataframe(
-            tabla_prop,
-            use_container_width=True
-        )
-
-        if "yes" in tabla_prop.columns:
-
-            fig, ax = plt.subplots()
-
-            tabla_prop["yes"].plot(
-                kind="bar",
-                ax=ax
-            )
-
-            ax.set_title(
-                f"Aceptación según {variable_cat_y}"
-            )
-
-            ax.set_xlabel(
-                variable_cat_y
-            )
-
-            ax.set_ylabel(
-                "Aceptación (%)"
-            )
-
-            plt.xticks(rotation=45)
-
-            st.pyplot(fig)
-
-            plt.close(fig)
-
-        st.write(
-            f"""
-            **Interpretación:** la proporción de aceptación puede
-            variar entre las categorías de **{variable_cat_y}**.
-            Esta información puede ayudar a identificar segmentos
-            donde la campaña presenta comportamientos diferentes.
-            """
-        )
-
-    # ========================================================
-    # 9. ANÁLISIS DINÁMICO
-    # ========================================================
-
-    with tabs[8]:
-
-        st.subheader(
-            "9. Análisis basado en parámetros seleccionados"
-        )
-
-        st.write(
-            """
-            Esta sección permite realizar un análisis dinámico.
-            El usuario puede seleccionar una variable, varias
-            variables numéricas y categorías específicas para
-            explorar diferentes segmentos del dataset.
-            """
-        )
-
-        numericas, categoricas = analyzer.clasificar_variables()
-
-        variable_principal = st.selectbox(
-            "Variable principal:",
-            df.columns.tolist()
-        )
-
-        variables_numericas = st.multiselect(
-            "Variables numéricas para analizar:",
-            numericas,
-            default=[
-                variable
-                for variable in [
-                    "age",
-                    "duration"
-                ]
-                if variable in numericas
-            ]
-        )
-
-        variable_filtro = st.selectbox(
-            "Variable categórica para filtrar:",
-            categoricas
-        )
-
-        categorias_disponibles = sorted(
-            df[variable_filtro]
-            .dropna()
-            .astype(str)
-            .unique()
-            .tolist()
-        )
-
-        categorias_seleccionadas = st.multiselect(
-            "Seleccione categorías:",
-            categorias_disponibles
-        )
-
-        aplicar_filtro = st.checkbox(
-            "Aplicar filtro seleccionado"
-        )
-
-        limite = st.slider(
-            "Cantidad máxima de filas a mostrar:",
-            min_value=10,
-            max_value=500,
-            value=100,
-            step=10
-        )
-
-        df_dinamico = df.copy()
-
-        if aplicar_filtro and categorias_seleccionadas:
-
-            df_dinamico = df_dinamico[
-                df_dinamico[
-                    variable_filtro
-                ].astype(str).isin(
-                    categorias_seleccionadas
-                )
-            ]
-
-        st.metric(
-            "Filas resultantes",
-            f"{len(df_dinamico):,}"
-        )
-
-        st.subheader(
-            "Resultado del análisis"
-        )
-
-        columnas_mostrar = [
-            variable_principal
-        ]
-
-        for variable in variables_numericas:
-
-            if variable not in columnas_mostrar:
-
-                columnas_mostrar.append(
-                    variable
-                )
-
-        st.dataframe(
-            df_dinamico[
-                columnas_mostrar
-            ].head(limite),
-            use_container_width=True
-        )
-
-        if variables_numericas and not df_dinamico.empty:
-
-            st.subheader(
-                "Estadísticas de las variables seleccionadas"
-            )
-
-            st.dataframe(
-                df_dinamico[
-                    variables_numericas
-                ].describe().T.round(2),
-                use_container_width=True
-            )
-
-        st.write(
-            """
-            **Interpretación:** el análisis dinámico permite explorar
-            diferentes segmentos sin modificar el código. Esto facilita
-            comparar comportamientos y obtener información específica
-            para apoyar la toma de decisiones.
-            """
-        )
-
-    # ========================================================
-    # 10. HALLAZGOS CLAVE
-    # ========================================================
-
-    with tabs[9]:
-
-        st.subheader(
-            "10. Hallazgos clave y toma de decisiones"
-        )
-
-        st.write(
-            """
-            Esta sección resume algunos comportamientos relevantes
-            identificados a partir del análisis exploratorio.
-            """
-        )
-
-        # ----------------------------------------------------
-        # DISTRIBUCIÓN DEL OBJETIVO
-        # ----------------------------------------------------
-
-        conteo_y = df["y"].value_counts()
-
-        porcentaje_y = (
-            df["y"]
-            .value_counts(normalize=True)
-            .mul(100)
-            .round(2)
-        )
+        variables_con_nulos = (
+            valores_nulos > 0
+        ).sum()
 
         col1, col2 = st.columns(2)
 
         with col1:
 
-            st.subheader(
-                "Resultado de la campaña"
-            )
-
-            st.dataframe(
-                pd.DataFrame({
-                    "Cantidad": conteo_y,
-                    "Porcentaje (%)": porcentaje_y
-                }),
-                use_container_width=True
+            st.metric(
+                "Total de valores faltantes",
+                f"{total_nulos:,}"
             )
 
         with col2:
 
-            fig, ax = plt.subplots()
+            st.metric(
+                "Variables con faltantes",
+                int(variables_con_nulos)
+            )
 
-            conteo_y.plot(
+        tabla_faltantes = pd.DataFrame(
+            {
+                "Variable": valores_nulos.index,
+                "Valores faltantes": valores_nulos.values
+            }
+        )
+
+        st.dataframe(
+            tabla_faltantes,
+            use_container_width=True
+        )
+
+        faltantes_grafico = valores_nulos[
+            valores_nulos > 0
+        ]
+
+        st.subheader(
+            "📊 Visualización"
+        )
+
+        if len(faltantes_grafico) > 0:
+
+            fig, ax = plt.subplots(
+                figsize=(10, 4)
+            )
+
+            ax.bar(
+                faltantes_grafico.index,
+                faltantes_grafico.values
+            )
+
+            ax.set_title(
+                "Valores faltantes por variable"
+            )
+
+            ax.set_xlabel(
+                "Variable"
+            )
+
+            ax.set_ylabel(
+                "Cantidad de faltantes"
+            )
+
+            plt.xticks(
+                rotation=45,
+                ha="right"
+            )
+
+            st.pyplot(fig)
+
+            plt.close(fig)
+
+        else:
+
+            st.success(
+                "✅ El dataset no contiene valores faltantes."
+            )
+
+        st.subheader(
+            "📝 Discusión"
+        )
+
+        if total_nulos == 0:
+
+            st.write(
+                """
+                El dataset no presenta valores faltantes. Por lo tanto,
+                no es necesario aplicar técnicas de imputación o
+                eliminación de registros debido a datos ausentes.
+                """
+            )
+
+        else:
+
+            st.write(
+                f"""
+                Se identificaron **{total_nulos:,} valores faltantes**
+                distribuidos en **{int(variables_con_nulos)} variables**.
+
+                Antes de realizar análisis posteriores sería conveniente
+                evaluar la causa de estos valores y determinar el
+                tratamiento más adecuado.
+                """
+            )
+
+
+    # ========================================================
+    # ÍTEM 5
+    # ========================================================
+
+    with tab5:
+
+        st.header(
+            "📈 Ítem 5: Distribución de variables numéricas"
+        )
+
+        st.write(
+            """
+            Los histogramas permiten analizar la distribución de
+            las variables numéricas, observando concentración,
+            dispersión, asimetría y posibles valores extremos.
+            """
+        )
+
+        variables_seleccionadas = st.multiselect(
+            "Seleccione una o más variables numéricas:",
+            variables_numericas,
+            default=variables_numericas[:3],
+            key="multiselect_item5"
+        )
+
+        if not variables_seleccionadas:
+
+            st.warning(
+                "⚠️ Seleccione al menos una variable."
+            )
+
+        else:
+
+            numero_bins = st.slider(
+                "Número de intervalos del histograma:",
+                min_value=5,
+                max_value=50,
+                value=20,
+                step=5,
+                key="slider_item5"
+            )
+
+            for variable in variables_seleccionadas:
+
+                st.subheader(
+                    f"📊 Distribución de {variable}"
+                )
+
+                fig, ax = plt.subplots(
+                    figsize=(9, 4)
+                )
+
+                ax.hist(
+                    df[variable].dropna(),
+                    bins=numero_bins,
+                    edgecolor="black"
+                )
+
+                ax.set_title(
+                    f"Histograma de {variable}"
+                )
+
+                ax.set_xlabel(
+                    variable
+                )
+
+                ax.set_ylabel(
+                    "Frecuencia"
+                )
+
+                st.pyplot(fig)
+
+                plt.close(fig)
+
+                media = df[variable].mean()
+                mediana = df[variable].median()
+
+                if media > mediana:
+
+                    interpretacion = (
+                        "La media es mayor que la mediana, lo que "
+                        "puede indicar una distribución con asimetría "
+                        "hacia valores altos."
+                    )
+
+                elif media < mediana:
+
+                    interpretacion = (
+                        "La media es menor que la mediana, lo que "
+                        "puede indicar una distribución con asimetría "
+                        "hacia valores bajos."
+                    )
+
+                else:
+
+                    interpretacion = (
+                        "La media y la mediana son similares, por lo "
+                        "que la distribución presenta un centro "
+                        "relativamente equilibrado."
+                    )
+
+                st.info(
+                    f"""
+                    **Interpretación visual**
+
+                    La variable **{variable}** presenta una distribución
+                    cuyo comportamiento puede observarse mediante el
+                    histograma.
+
+                    Media: **{media:,.2f}**
+
+                    Mediana: **{mediana:,.2f}**
+
+                    {interpretacion}
+                    """
+                )
+
+
+    # ========================================================
+    # ÍTEM 6
+    # ========================================================
+
+    with tab6:
+
+        st.header(
+            "📊 Ítem 6: Análisis de variables categóricas"
+        )
+
+        st.write(
+            """
+            Las variables categóricas se analizan mediante conteos,
+            proporciones y gráficos de barras para identificar las
+            categorías más frecuentes.
+            """
+        )
+
+        variable_categorica = st.selectbox(
+            "Seleccione una variable categórica:",
+            variables_categoricas,
+            key="selectbox_item6"
+        )
+
+        conteos = analyzer.conteos_categoricos(
+            variable_categorica
+        )
+
+        proporciones = analyzer.proporciones_categoricas(
+            variable_categorica
+        )
+
+        tabla_categorias = pd.DataFrame(
+            {
+                "Categoría": conteos.index,
+                "Conteo": conteos.values,
+                "Proporción (%)": proporciones.values
+            }
+        )
+
+        st.subheader(
+            "📋 Conteos y proporciones"
+        )
+
+        st.dataframe(
+            tabla_categorias,
+            use_container_width=True
+        )
+
+        st.subheader(
+            "📊 Gráfico de barras"
+        )
+
+        fig, ax = plt.subplots(
+            figsize=(10, 5)
+        )
+
+        ax.bar(
+            conteos.index.astype(str),
+            conteos.values
+        )
+
+        ax.set_title(
+            f"Frecuencia de {variable_categorica}"
+        )
+
+        ax.set_xlabel(
+            variable_categorica
+        )
+
+        ax.set_ylabel(
+            "Cantidad"
+        )
+
+        plt.xticks(
+            rotation=45,
+            ha="right"
+        )
+
+        st.pyplot(fig)
+
+        plt.close(fig)
+
+        categoria_mayor = conteos.idxmax()
+        cantidad_mayor = conteos.max()
+        porcentaje_mayor = proporciones.loc[
+            categoria_mayor
+        ]
+
+        st.info(
+            f"""
+            **Interpretación**
+
+            La categoría más frecuente de **{variable_categorica}**
+            es **{categoria_mayor}**, con **{cantidad_mayor:,}**
+            registros.
+
+            Esta categoría representa aproximadamente el
+            **{porcentaje_mayor:.2f}%** del total.
+            """
+        )
+
+
+    # ========================================================
+    # ÍTEM 7
+    # ========================================================
+
+    with tab7:
+
+        st.header(
+            "🔗 Ítem 7: Análisis bivariado "
+            "(numérico vs categórico)"
+        )
+
+        st.write(
+            """
+            Se analiza cómo se comporta una variable numérica según
+            una variable categórica. En este proyecto se utiliza
+            la variable objetivo **y**, que contiene los resultados
+            de la campaña.
+            """
+        )
+
+        if "y" in df.columns:
+
+            variables_bivariadas = [
+                variable
+                for variable in variables_numericas
+                if variable != "y"
+            ]
+
+            variable_numerica = st.selectbox(
+                "Seleccione una variable numérica:",
+                variables_bivariadas,
+                key="selectbox_item7"
+            )
+
+            st.subheader(
+                f"📊 {variable_numerica} vs y"
+            )
+
+            comparacion = analyzer.comparacion_grupos(
+                variable_numerica,
+                "y"
+            )
+
+            comparacion.columns = [
+                "Media",
+                "Mediana",
+                "Mínimo",
+                "Máximo"
+            ]
+
+            st.dataframe(
+                comparacion,
+                use_container_width=True
+            )
+
+            fig, ax = plt.subplots(
+                figsize=(8, 5)
+            )
+
+            df.boxplot(
+                column=variable_numerica,
+                by="y",
+                ax=ax
+            )
+
+            ax.set_title(
+                f"{variable_numerica} según resultado de la campaña"
+            )
+
+            ax.set_xlabel(
+                "Resultado y"
+            )
+
+            ax.set_ylabel(
+                variable_numerica
+            )
+
+            plt.suptitle("")
+
+            st.pyplot(fig)
+
+            plt.close(fig)
+
+            if "no" in df["y"].values and "yes" in df["y"].values:
+
+                media_no = df.loc[
+                    df["y"] == "no",
+                    variable_numerica
+                ].mean()
+
+                media_yes = df.loc[
+                    df["y"] == "yes",
+                    variable_numerica
+                ].mean()
+
+                diferencia = media_yes - media_no
+
+                st.info(
+                    f"""
+                    **Interpretación**
+
+                    La media de **{variable_numerica}** para el grupo
+                    **no** es **{media_no:,.2f}**.
+
+                    La media para el grupo **yes** es
+                    **{media_yes:,.2f}**.
+
+                    La diferencia entre ambos grupos es de
+                    **{diferencia:,.2f}**.
+
+                    Esta comparación permite identificar diferencias
+                    en el comportamiento de la variable numérica
+                    según el resultado de la campaña.
+                    """
+                )
+
+        else:
+
+            st.warning(
+                "⚠️ No se encontró la variable objetivo 'y'."
+            )
+
+
+    # ========================================================
+    # ÍTEM 8
+    # ========================================================
+
+    with tab8:
+
+        st.header(
+            "🔗 Ítem 8: Análisis bivariado "
+            "(categórico vs categórico)"
+        )
+
+        st.write(
+            """
+            Se estudia la relación entre dos variables categóricas.
+            Se utiliza la variable objetivo **y** para observar cómo
+            cambia el resultado de la campaña según diferentes
+            categorías.
+            """
+        )
+
+        if "y" in df.columns:
+
+            categoricas_sin_y = [
+                variable
+                for variable in variables_categoricas
+                if variable != "y"
+            ]
+
+            variable_categorica_2 = st.selectbox(
+                "Seleccione una variable categórica:",
+                categoricas_sin_y,
+                key="selectbox_item8"
+            )
+
+            tabla_cruzada = analyzer.tabla_cruzada(
+                variable_categorica_2,
+                "y"
+            )
+
+            st.subheader(
+                f"📋 Conteos: {variable_categorica_2} vs y"
+            )
+
+            st.dataframe(
+                tabla_cruzada,
+                use_container_width=True
+            )
+
+            st.subheader(
+                "📊 Gráfico de barras"
+            )
+
+            fig, ax = plt.subplots(
+                figsize=(10, 5)
+            )
+
+            tabla_cruzada.plot(
                 kind="bar",
                 ax=ax
             )
 
             ax.set_title(
-                "Distribución de aceptación"
+                f"{variable_categorica_2} vs y"
+            )
+
+            ax.set_xlabel(
+                variable_categorica_2
+            )
+
+            ax.set_ylabel(
+                "Cantidad"
+            )
+
+            plt.xticks(
+                rotation=45,
+                ha="right"
+            )
+
+            st.pyplot(fig)
+
+            plt.close(fig)
+
+            st.subheader(
+                "📈 Proporciones por categoría"
+            )
+
+            tabla_proporciones = analyzer.tabla_proporciones(
+                variable_categorica_2,
+                "y"
+            )
+
+            st.dataframe(
+                tabla_proporciones,
+                use_container_width=True
+            )
+
+            st.info(
+                f"""
+                **Interpretación**
+
+                El análisis permite comparar los resultados **yes**
+                y **no** dentro de cada categoría de
+                **{variable_categorica_2}**.
+
+                Las proporciones permiten realizar una comparación
+                más justa entre categorías de diferentes tamaños.
+                """
+            )
+
+        else:
+
+            st.warning(
+                "⚠️ No se encontró la variable objetivo 'y'."
+            )
+
+
+    # ========================================================
+    # ÍTEM 9
+    # ========================================================
+
+    with tab9:
+
+        st.header(
+            "🎛️ Ítem 9: Análisis basado en parámetros seleccionados"
+        )
+
+        st.write(
+            """
+            Este apartado permite al usuario seleccionar variables
+            y realizar un análisis dinámico del dataset.
+            """
+        )
+
+        # ----------------------------------------------------
+        # SELECTBOX
+        # ----------------------------------------------------
+
+        st.subheader(
+            "🎯 Selección principal"
+        )
+
+        variable_principal = st.selectbox(
+            "Seleccione una variable numérica principal:",
+            variables_numericas,
+            key="selectbox_item9"
+        )
+
+        # ----------------------------------------------------
+        # MULTISELECT NUMÉRICAS
+        # ----------------------------------------------------
+
+        variables_num_seleccionadas = st.multiselect(
+            "Seleccione variables numéricas:",
+            variables_numericas,
+            default=variables_numericas[:2],
+            key="multiselect_num_item9"
+        )
+
+        # ----------------------------------------------------
+        # MULTISELECT CATEGÓRICAS
+        # ----------------------------------------------------
+
+        variables_cat_seleccionadas = st.multiselect(
+            "Seleccione variables categóricas:",
+            variables_categoricas,
+            default=variables_categoricas[:2],
+            key="multiselect_cat_item9"
+        )
+
+        # ----------------------------------------------------
+        # CHECKBOX
+        # ----------------------------------------------------
+
+        mostrar_estadisticas = st.checkbox(
+            "Mostrar estadísticas descriptivas",
+            value=True,
+            key="checkbox_item9"
+        )
+
+        # ----------------------------------------------------
+        # SLIDER
+        # ----------------------------------------------------
+
+        limite_categorias = st.slider(
+            "Número máximo de categorías a visualizar:",
+            min_value=2,
+            max_value=15,
+            value=8,
+            step=1,
+            key="slider_item9"
+        )
+
+        # ----------------------------------------------------
+        # VARIABLE PRINCIPAL
+        # ----------------------------------------------------
+
+        st.subheader(
+            f"📊 Análisis de {variable_principal}"
+        )
+
+        resumen_principal = analyzer.resumen_variable(
+            variable_principal
+        )
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+
+            st.metric(
+                "Media",
+                f"{resumen_principal['media']:,.2f}"
+            )
+
+        with col2:
+
+            st.metric(
+                "Mediana",
+                f"{resumen_principal['mediana']:,.2f}"
+            )
+
+        with col3:
+
+            st.metric(
+                "Desviación",
+                f"{resumen_principal['desviacion']:,.2f}"
+            )
+
+        # ----------------------------------------------------
+        # ESTADÍSTICAS
+        # ----------------------------------------------------
+
+        if mostrar_estadisticas:
+
+            if variables_num_seleccionadas:
+
+                st.subheader(
+                    "📈 Estadísticas de variables seleccionadas"
+                )
+
+                estadisticas_parametros = df[
+                    variables_num_seleccionadas
+                ].describe()
+
+                st.dataframe(
+                    estadisticas_parametros,
+                    use_container_width=True
+                )
+
+            else:
+
+                st.warning(
+                    "Seleccione al menos una variable numérica."
+                )
+
+        # ----------------------------------------------------
+        # CATEGÓRICAS
+        # ----------------------------------------------------
+
+        if variables_cat_seleccionadas:
+
+            st.subheader(
+                "📊 Variables categóricas seleccionadas"
+            )
+
+            for variable in variables_cat_seleccionadas:
+
+                st.write(
+                    f"**{variable}**"
+                )
+
+                conteos = (
+                    df[variable]
+                    .value_counts()
+                    .head(limite_categorias)
+                )
+
+                fig, ax = plt.subplots(
+                    figsize=(9, 4)
+                )
+
+                ax.bar(
+                    conteos.index.astype(str),
+                    conteos.values
+                )
+
+                ax.set_title(
+                    f"Frecuencia de {variable}"
+                )
+
+                ax.set_xlabel(
+                    variable
+                )
+
+                ax.set_ylabel(
+                    "Cantidad"
+                )
+
+                plt.xticks(
+                    rotation=45,
+                    ha="right"
+                )
+
+                st.pyplot(fig)
+
+                plt.close(fig)
+
+        else:
+
+            st.warning(
+                "Seleccione al menos una variable categórica."
+            )
+
+        st.success(
+            """
+            ✅ El análisis se actualiza automáticamente según
+            las variables y parámetros seleccionados por el usuario.
+            """
+        )
+
+
+    # ========================================================
+    # ÍTEM 10
+    # ========================================================
+
+    with tab10:
+
+        st.header(
+            "💡 Ítem 10: Hallazgos clave"
+        )
+
+        st.write(
+            """
+            En este apartado se presentan los principales hallazgos
+            derivados del análisis exploratorio de datos.
+            """
+        )
+
+        # ----------------------------------------------------
+        # RESUMEN GENERAL
+        # ----------------------------------------------------
+
+        st.subheader(
+            "📊 Resumen general del dataset"
+        )
+
+        col1, col2, col3, col4 = st.columns(4)
+
+        with col1:
+
+            st.metric(
+                "Registros",
+                f"{df.shape[0]:,}"
+            )
+
+        with col2:
+
+            st.metric(
+                "Variables",
+                df.shape[1]
+            )
+
+        with col3:
+
+            st.metric(
+                "Numéricas",
+                len(variables_numericas)
+            )
+
+        with col4:
+
+            st.metric(
+                "Categóricas",
+                len(variables_categoricas)
+            )
+
+        # ----------------------------------------------------
+        # VALORES FALTANTES
+        # ----------------------------------------------------
+
+        total_nulos = analyzer.valores_faltantes().sum()
+
+        st.subheader(
+            "⚠️ Calidad de los datos"
+        )
+
+        if total_nulos == 0:
+
+            st.success(
+                "✅ No se identificaron valores faltantes."
+            )
+
+        else:
+
+            st.warning(
+                f"Se identificaron {total_nulos:,} valores faltantes."
+            )
+
+        # ----------------------------------------------------
+        # VARIABLE OBJETIVO
+        # ----------------------------------------------------
+
+        if "y" in df.columns:
+
+            st.subheader(
+                "🎯 Resultado de la campaña"
+            )
+
+            resultados = df["y"].value_counts()
+
+            proporciones = (
+                df["y"]
+                .value_counts(normalize=True)
+                .mul(100)
+                .round(2)
+            )
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+
+                st.write(
+                    "**Conteo de resultados**"
+                )
+
+                tabla_resultados = pd.DataFrame(
+                    {
+                        "Resultado": resultados.index,
+                        "Cantidad": resultados.values
+                    }
+                )
+
+                st.dataframe(
+                    tabla_resultados,
+                    use_container_width=True
+                )
+
+            with col2:
+
+                st.write(
+                    "**Proporción de resultados**"
+                )
+
+                tabla_proporciones_y = pd.DataFrame(
+                    {
+                        "Resultado": proporciones.index,
+                        "Proporción (%)": proporciones.values
+                    }
+                )
+
+                st.dataframe(
+                    tabla_proporciones_y,
+                    use_container_width=True
+                )
+
+            # ------------------------------------------------
+            # GRÁFICO RESUMEN
+            # ------------------------------------------------
+
+            st.subheader(
+                "📈 Visualización resumen"
+            )
+
+            fig, ax = plt.subplots(
+                figsize=(8, 5)
+            )
+
+            ax.bar(
+                resultados.index.astype(str),
+                resultados.values
+            )
+
+            ax.set_title(
+                "Distribución del resultado de la campaña"
             )
 
             ax.set_xlabel(
@@ -1435,200 +1834,100 @@ elif modulos == "Modulo 2: Carga del dataset":
                 "Cantidad"
             )
 
-            plt.xticks(rotation=0)
-
             st.pyplot(fig)
 
             plt.close(fig)
 
-        # ----------------------------------------------------
-        # DURACIÓN
-        # ----------------------------------------------------
+            # ------------------------------------------------
+            # HALLAZGOS
+            # ------------------------------------------------
 
-        if "duration" in df.columns:
+            resultado_mayoritario = resultados.idxmax()
 
-            media_duration_yes = df.loc[
-                df["y"] == "yes",
-                "duration"
-            ].mean()
+            cantidad_mayoritaria = resultados.max()
 
-            media_duration_no = df.loc[
-                df["y"] == "no",
-                "duration"
-            ].mean()
+            porcentaje_mayoritario = proporciones.loc[
+                resultado_mayoritario
+            ]
 
             st.subheader(
-                "Duración de las llamadas"
+                "🔎 Principales insights"
             )
 
-            st.write(
+            st.markdown(
                 f"""
-                La duración promedio de las llamadas que terminaron
-                en aceptación (`yes`) fue de aproximadamente
-                **{media_duration_yes:.0f} segundos**, mientras que
-                en las que terminaron en no aceptación (`no`) fue de
-                aproximadamente **{media_duration_no:.0f} segundos**.
+                ### 1. Estructura del dataset
 
-                Esto muestra una diferencia importante en la duración
-                de las interacciones entre ambos grupos.
+                El dataset contiene **{df.shape[0]:,} registros**
+                y **{df.shape[1]} variables**, permitiendo realizar
+                un análisis exploratorio amplio.
+
+                ### 2. Tipos de variables
+
+                Se identificaron **{len(variables_numericas)} variables
+                numéricas** y **{len(variables_categoricas)} variables
+                categóricas**.
+
+                ### 3. Valores faltantes
+
+                El análisis de calidad de datos identificó un total
+                de **{total_nulos:,} valores faltantes**.
+
+                ### 4. Resultado predominante
+
+                La categoría más frecuente de la variable objetivo
+                **y** es **{resultado_mayoritario}**, con
+                **{cantidad_mayoritaria:,} registros**, equivalentes
+                aproximadamente al **{porcentaje_mayoritario:.2f}%**
+                del dataset.
+
+                ### 5. Análisis de variables numéricas
+
+                Los histogramas permiten observar la distribución,
+                concentración y dispersión de las variables numéricas.
+
+                ### 6. Análisis de variables categóricas
+
+                Los conteos y proporciones permiten identificar las
+                categorías predominantes dentro del dataset.
+
+                ### 7. Análisis bivariado
+
+                La comparación entre variables numéricas y categóricas
+                permite identificar diferencias entre los grupos
+                definidos por el resultado de la campaña.
+
+                ### 8. Análisis dinámico
+
+                Los controles interactivos permiten seleccionar
+                variables y modificar el análisis de acuerdo con
+                las preferencias del usuario.
                 """
             )
 
-        # ----------------------------------------------------
-        # CONTACTO
-        # ----------------------------------------------------
+        else:
 
-        if "contact" in df.columns:
-
-            tabla_contacto = pd.crosstab(
-                df["contact"],
-                df["y"],
-                normalize="index"
-            ).mul(100).round(2)
-
-            st.subheader(
-                "Resultado según canal de contacto"
+            st.warning(
+                "⚠️ No se encontró la variable objetivo 'y'."
             )
 
-            st.dataframe(
-                tabla_contacto,
-                use_container_width=True
-            )
-
-            if "yes" in tabla_contacto.columns:
-
-                canal_mejor = (
-                    tabla_contacto["yes"]
-                    .idxmax()
-                )
-
-                porcentaje_mejor = (
-                    tabla_contacto["yes"]
-                    .max()
-                )
-
-                st.write(
-                    f"""
-                    En los datos analizados, el canal **{canal_mejor}**
-                    presenta la mayor proporción observada de aceptación,
-                    con aproximadamente **{porcentaje_mejor:.2f}%**.
-
-                    Este resultado puede ser considerado como un elemento
-                    para evaluar la estrategia de contacto de futuras
-                    campañas.
-                    """
-                )
-
         # ----------------------------------------------------
-        # POUTCOME
-        # ----------------------------------------------------
-
-        if "poutcome" in df.columns:
-
-            tabla_poutcome = pd.crosstab(
-                df["poutcome"],
-                df["y"],
-                normalize="index"
-            ).mul(100).round(2)
-
-            st.subheader(
-                "Resultado según campañas anteriores"
-            )
-
-            st.dataframe(
-                tabla_poutcome,
-                use_container_width=True
-            )
-
-            if "yes" in tabla_poutcome.columns:
-
-                categoria_mejor = (
-                    tabla_poutcome["yes"]
-                    .idxmax()
-                )
-
-                porcentaje_mejor = (
-                    tabla_poutcome["yes"]
-                    .max()
-                )
-
-                st.write(
-                    f"""
-                    La categoría **{categoria_mejor}** presenta la mayor
-                    proporción observada de aceptación, aproximadamente
-                    **{porcentaje_mejor:.2f}%**.
-
-                    Esto sugiere que el historial de campañas anteriores
-                    puede ser una variable relevante para segmentar y
-                    priorizar esfuerzos comerciales.
-                    """
-                )
-
-        # ----------------------------------------------------
-        # CONCLUSIONES
+        # CONCLUSIÓN
         # ----------------------------------------------------
 
         st.subheader(
-            "🎯 Conclusiones para la toma de decisiones"
+            "🎓 Conclusión del EDA"
         )
 
-        st.markdown(
+        st.write(
             """
-            **1. La aceptación de la campaña es relativamente baja.**
+            El análisis exploratorio permite comprender la estructura
+            del dataset Bank Marketing, identificar los tipos de
+            variables, estudiar sus distribuciones, analizar
+            relaciones entre grupos y obtener hallazgos relevantes.
 
-            La distribución de la variable objetivo `y` muestra que
-            la aceptación representa una proporción menor del total
-            de contactos. Debido al contexto de reducción de efectividad
-            de **12% a 8%**, resulta importante revisar cómo se asignan
-            los esfuerzos comerciales.
-
-            **2. La duración de las llamadas presenta diferencias
-            entre los resultados.**
-
-            Las llamadas que terminan en aceptación presentan una
-            duración promedio diferente respecto a las llamadas que
-            terminan en no aceptación. Este comportamiento puede servir
-            para estudiar la calidad y características de las
-            interacciones comerciales.
-
-            **3. El canal de contacto presenta diferencias en la
-            aceptación.**
-
-            Los resultados muestran que la proporción de aceptación
-            cambia según el medio utilizado para contactar al cliente.
-            Esta información puede ser considerada al momento de revisar
-            la estrategia de contacto.
-
-            **4. El resultado de campañas anteriores es relevante
-            para la segmentación.**
-
-            Las categorías de `poutcome` presentan diferentes niveles
-            de aceptación. Por ello, el historial disponible puede ser
-            útil para priorizar determinados segmentos de clientes.
-
-            **5. La segmentación permite orientar mejor los recursos
-            comerciales.**
-
-            Las diferencias observadas según características de los
-            clientes, canales de contacto y antecedentes de campañas
-            permiten plantear estrategias diferenciadas en lugar de
-            utilizar un único enfoque para toda la base.
-
-            En conjunto, estos hallazgos permiten comprender mejor el
-            comportamiento de la última campaña y generan información
-            útil para apoyar decisiones destinadas a mejorar la gestión
-            comercial y evaluar posibles acciones frente a la caída de
-            efectividad.
-            """
-        )
-
-        st.success(
-            """
-            ✅ **Conclusión general:** el análisis exploratorio permite
-            identificar diferencias importantes entre grupos de clientes
-            y características de las interacciones. Estos resultados
-            pueden utilizarse como base para revisar la segmentación,
-            los canales de contacto y la asignación de recursos en
-            futuras campañas.
+            La aplicación permite realizar este proceso de manera
+            interactiva, facilitando la exploración de los datos
+            mediante diferentes parámetros seleccionados por el usuario.
             """
         )
