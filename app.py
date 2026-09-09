@@ -19,8 +19,9 @@ if modulos == "Home":
         unsafe_allow_html=True
     )
 
-  st.image("IMAGEN PYTHON_N.png")
-    
+    # Imagen principal
+    st.image("IMAGEN PYTHON_N.png")
+
     # Breve descripción del objetivo del análisis
     st.subheader("Breve descripción del objetivo del análisis")
 
