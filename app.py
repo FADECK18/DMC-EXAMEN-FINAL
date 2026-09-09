@@ -19,6 +19,8 @@ if modulos == "Home":
         unsafe_allow_html=True
     )
 
+    st.sidebar.image("IMAGEN PYTHON_N.png", width=100)
+    
     # Breve descripción del objetivo del análisis
     st.subheader("Breve descripción del objetivo del análisis")
 
