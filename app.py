@@ -93,10 +93,11 @@ if modulos == "Modulo 1: Home":
 
     st.write(
         """
-        El análisis del dataset permitirá organizar la información,
-        identificar características relevantes de los datos y obtener
-        resultados que serán presentados de manera clara e interactiva
-        mediante Streamlit.
+        El dataset Bank Marketing contiene información relacionada con
+        campañas de marketing telefónico de una institución bancaria.
+        Los datos permiten analizar características de los clientes,
+        información relacionada con las campañas y el resultado final
+        de la campaña.
         """
     )
 
@@ -110,13 +111,13 @@ if modulos == "Modulo 1: Home":
         """
         - **Python:** lenguaje de programación utilizado para desarrollar
           el proyecto.
-          
+
         - **Pandas:** biblioteca utilizada para la manipulación y análisis
           de los datos.
-          
+
         - **Streamlit:** herramienta utilizada para crear la aplicación
           web interactiva.
-          
+
         - **GitHub:** plataforma utilizada para almacenar y gestionar
           el código del proyecto.
         """
@@ -129,23 +130,21 @@ if modulos == "Modulo 1: Home":
 
 elif modulos == "Modulo 2: Carga del dataset":
 
-    st.title(
-        "📊 Módulo 2: Carga del Dataset"
-    )
+    st.title("📊 Módulo 2: Carga del Dataset")
 
     st.write(
         """
         En este módulo se realiza la carga del dataset BankMarketing.csv,
-        la validación del archivo, una vista previa de los datos y la
+        la validación del archivo, la visualización de los datos y la
         identificación de sus dimensiones.
         """
     )
 
     st.divider()
 
-    # --------------------------------------------------------
+    # ========================================================
     # CARGA DEL DATASET
-    # --------------------------------------------------------
+    # ========================================================
 
     st.header("📂 Carga del dataset")
 
@@ -154,9 +153,9 @@ elif modulos == "Modulo 2: Carga del dataset":
         type=["csv"]
     )
 
-    # --------------------------------------------------------
+    # ========================================================
     # VALIDACIÓN DEL ARCHIVO
-    # --------------------------------------------------------
+    # ========================================================
 
     if archivo is None:
 
@@ -173,9 +172,9 @@ elif modulos == "Modulo 2: Carga del dataset":
 
         st.stop()
 
-    # --------------------------------------------------------
+    # ========================================================
     # LECTURA DEL DATASET
-    # --------------------------------------------------------
+    # ========================================================
 
     try:
 
@@ -196,9 +195,9 @@ elif modulos == "Modulo 2: Carga del dataset":
 
         st.stop()
 
-    # --------------------------------------------------------
+    # ========================================================
     # VALIDACIÓN DEL DATASET
-    # --------------------------------------------------------
+    # ========================================================
 
     if df.empty:
 
@@ -208,24 +207,42 @@ elif modulos == "Modulo 2: Carga del dataset":
 
         st.stop()
 
-    # --------------------------------------------------------
-    # VISTA PREVIA DEL DATASET
-    # --------------------------------------------------------
+    # ========================================================
+    # INFORMACIÓN DEL DATASET
+    # ========================================================
 
-    st.header("👀 Vista previa del dataset")
+    st.header("📋 Información del dataset")
 
     st.write(
-        "A continuación se muestran las primeras 5 filas del dataset:"
+        f"""
+        El dataset contiene **{df.shape[0]:,} filas** y
+        **{df.shape[1]} columnas**.
+        """
+    )
+
+    # ========================================================
+    # VISTA COMPLETA DEL DATASET
+    # ========================================================
+
+    st.header("👀 Vista completa del dataset")
+
+    st.write(
+        """
+        La siguiente tabla permite visualizar todas las filas y
+        todas las columnas del dataset. Utilice las barras de
+        desplazamiento para recorrer la información.
+        """
     )
 
     st.dataframe(
-        df.head(),
-        use_container_width=True
+        df,
+        use_container_width=True,
+        height=600
     )
 
-    # --------------------------------------------------------
+    # ========================================================
     # DIMENSIONES DEL DATASET
-    # --------------------------------------------------------
+    # ========================================================
 
     st.header("📏 Dimensiones del dataset")
 
@@ -235,7 +252,7 @@ elif modulos == "Modulo 2: Carga del dataset":
 
         st.metric(
             "Número de filas",
-            df.shape[0]
+            f"{df.shape[0]:,}"
         )
 
     with col2:
@@ -245,9 +262,9 @@ elif modulos == "Modulo 2: Carga del dataset":
             df.shape[1]
         )
 
-    # --------------------------------------------------------
-    # INFORMACIÓN ADICIONAL
-    # --------------------------------------------------------
+    # ========================================================
+    # INFORMACIÓN DEL ARCHIVO
+    # ========================================================
 
     st.header("ℹ️ Información del archivo")
 
@@ -261,7 +278,6 @@ elif modulos == "Modulo 2: Carga del dataset":
     with col2:
 
         st.write("**Tamaño del archivo:**")
-        st.write(f"{archivo.size / 1024:.2f} KB")
-
-
-
+        st.write(
+            f"{archivo.size / 1024:.2f} KB"
+        )
