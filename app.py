@@ -1,50 +1,138 @@
 import streamlit as st
 import pandas as pd
 
-st.sidebar.title("Módulo")
+# ============================================================
+# CONFIGURACIÓN DE LA PÁGINA
+# ============================================================
 
-st.sidebar.image("IMAGEN DMC.png", width=100)
+st.set_page_config(
+    page_title="Proyecto Python Fundamentals",
+    page_icon="📊",
+    layout="wide"
+)
+
+
+# ============================================================
+# SIDEBAR
+# ============================================================
+
+st.sidebar.title("📚 Módulos")
+
+st.sidebar.image(
+    "IMAGEN DMC.png",
+    width=100
+)
 
 modulos = st.sidebar.selectbox(
     "Seleccione un módulo:",
-    ["Home", "Modulo 1", "Modulo 2", "Modulo 3"])
+    ["Home", "Modulo 1", "Modulo 2", "Modulo 3"]
+)
+
+
+# ============================================================
+# HOME
+# ============================================================
 
 if modulos == "Home":
 
     st.markdown(
-        "<h1 align='center'>APLICACIÓN INTERACTIVA CONSTRUIDA EN PYTHON UTILIZANDO STREAMLIT</h1>",
-        unsafe_allow_html=True)
+        """
+        <h1 style="text-align: center;">
+        APLICACIÓN INTERACTIVA CONSTRUIDA EN PYTHON
+        UTILIZANDO STREAMLIT
+        </h1>
+        """,
+        unsafe_allow_html=True
+    )
 
-    st.subheader("Breve descripción del objetivo del análisis")
+    st.divider()
 
-    st.markdown("""El objetivo del proyecto es aplicar los conocimientos adquiridos
+    # --------------------------------------------------------
+    # OBJETIVO
+    # --------------------------------------------------------
+
+    st.subheader("🎯 Objetivo del proyecto")
+
+    st.write(
+        """
+        El objetivo del proyecto es aplicar los conocimientos adquiridos
         durante el curso de Python Fundamentals para explorar, organizar
-        y analizar un conjunto de datos mediante herramientas de Python.""")
+        y analizar un conjunto de datos mediante herramientas de Python.
+        """
+    )
 
-    st.subheader("DATOS DEL AUTOR")
+    # --------------------------------------------------------
+    # INFORMACIÓN DEL AUTOR
+    # --------------------------------------------------------
 
-    st.markdown("**Nombre completo:**")
-    st.markdown("Farid Estefano Garibay Fabian")
+    st.subheader("👤 Datos del autor")
 
-    st.markdown("**Curso / Especialización:**")
-    st.markdown("Python Fundamentals")
+    col1, col2, col3 = st.columns(3)
 
-    st.markdown("**Año:**")
-    st.markdown("2026")
+    with col1:
+        st.write("**Nombre completo**")
+        st.write("Farid Estefano Garibay Fabian")
 
-    st.subheader("Breve explicación del dataset")
+    with col2:
+        st.write("**Curso / Especialización**")
+        st.write("Python Fundamentals")
 
-    st.markdown("""El análisis del dataset permitirá organizar la información, identificar
-        características relevantes de los datos y obtener resultados que serán
-        presentados de manera clara e interactiva mediante Streamlit.""")
+    with col3:
+        st.write("**Año**")
+        st.write("2026")
 
-    st.subheader("Tecnologías utilizadas")
+    # --------------------------------------------------------
+    # DATASET
+    # --------------------------------------------------------
+
+    st.subheader("📊 Breve explicación del dataset")
+
+    st.write(
+        """
+        El análisis del dataset permitirá organizar la información,
+        identificar características relevantes de los datos y obtener
+        resultados que serán presentados de manera clara e interactiva
+        mediante Streamlit.
+        """
+    )
+
+    # --------------------------------------------------------
+    # TECNOLOGÍAS
+    # --------------------------------------------------------
+
+    st.subheader("🛠️ Tecnologías utilizadas")
 
     st.markdown(
         """
-        - **Python:** lenguaje de programación utilizado para desarrollar el proyecto.
-        - **Pandas:** biblioteca utilizada para la manipulación y análisis de los datos.
+        - **Python:** lenguaje de programación utilizado para desarrollar
+          el proyecto.
+        - **Pandas:** biblioteca utilizada para la manipulación y análisis
+          de los datos.
+        - **Streamlit:** herramienta utilizada para crear la aplicación
+          web interactiva.
+        - **GitHub:** plataforma utilizada para almacenar y gestionar
+          el código del proyecto.
+        """
+    )
 
+
+# ============================================================
+# MÓDULO 1
+# ============================================================
+
+elif modulos == "Modulo 1":
+
+    st.title("📘 Módulo 1")
+
+    st.info(
+        "Aquí puedes colocar el contenido que ya desarrollaste "
+        "para el Módulo 1."
+    )
+
+
+# ============================================================
+# MÓDULO 2
+# ============================================================
 
 elif modulos == "Modulo 2":
 
@@ -52,15 +140,19 @@ elif modulos == "Modulo 2":
         "📊 Módulo 2: Carga del Dataset y Análisis Exploratorio de Datos"
     )
 
-    st.markdown("""
-    En este módulo se realiza la carga del dataset y un Análisis
-    Exploratorio de Datos (EDA), utilizando herramientas de Python,
-    Pandas, Matplotlib y Streamlit.
-    """)
+    st.write(
+        """
+        En este módulo se realiza la carga del dataset y un Análisis
+        Exploratorio de Datos (EDA), utilizando herramientas de Python,
+        Pandas, Matplotlib y Streamlit.
+        """
+    )
 
-    # ========================================================
+    st.divider()
+
+    # --------------------------------------------------------
     # CARGA DEL DATASET
-    # ========================================================
+    # --------------------------------------------------------
 
     st.header("📂 Carga del dataset")
 
@@ -69,9 +161,9 @@ elif modulos == "Modulo 2":
         type=["csv"]
     )
 
-    # ========================================================
+    # --------------------------------------------------------
     # VALIDACIÓN
-    # ========================================================
+    # --------------------------------------------------------
 
     if archivo is None:
 
@@ -79,15 +171,80 @@ elif modulos == "Modulo 2":
             "⚠️ Debe cargar un archivo CSV para comenzar el análisis."
         )
 
-        st.info("""
-        Ningún análisis será ejecutado hasta que el archivo
-        haya sido cargado correctamente.
-        """)
+        st.info(
+            """
+            Ningún análisis será ejecutado hasta que el archivo
+            haya sido cargado correctamente.
+            """
+        )
 
         st.stop()
 
+    # --------------------------------------------------------
+    # LECTURA DEL DATASET
+    # --------------------------------------------------------
 
-        - **Streamlit:** herramienta utilizada para crear la aplicación web interactiva.
-        - **GitHub:** plataforma utilizada para almacenar y gestionar el código del proyecto.
-        """
+    try:
+
+        df = pd.read_csv(
+            archivo,
+            sep=";"
+        )
+
+        st.success(
+            "✅ El archivo fue cargado correctamente."
+        )
+
+    except Exception as e:
+
+        st.error(
+            f"❌ Ocurrió un error al cargar el archivo: {e}"
+        )
+
+        st.stop()
+
+    # --------------------------------------------------------
+    # VALIDACIÓN DEL DATASET
+    # --------------------------------------------------------
+
+    if df.empty:
+
+        st.error(
+            "❌ El archivo fue cargado, pero no contiene datos."
+        )
+
+        st.stop()
+
+    # --------------------------------------------------------
+    # VISTA PREVIA
+    # --------------------------------------------------------
+
+    st.subheader("👀 Vista previa del dataset")
+
+    st.dataframe(
+        df.head(),
+        use_container_width=True
     )
+
+    # --------------------------------------------------------
+    # DIMENSIONES
+    # --------------------------------------------------------
+
+    st.subheader("📏 Dimensiones del dataset")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        st.metric(
+            "Número de filas",
+            df.shape[0]
+        )
+
+    with col2:
+
+        st.metric(
+            "Número de columnas",
+            df.shape[1]
+        )
+```
