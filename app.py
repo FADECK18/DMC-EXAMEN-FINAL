@@ -6,7 +6,7 @@ st.sidebar.image("IMAGEN DMC.png", width=100)
 
 modulos = st.sidebar.selectbox(
     "Seleccione un módulo:",
-    ["Home", "Ejercicio 1", "Ejercicio 2", "Ejercicio 3", "Ejercicio 4"])
+    ["Home", "Modulo 1", "Modulo 2", "Modulo 3"])
 
 if modulos == "Home":
 
