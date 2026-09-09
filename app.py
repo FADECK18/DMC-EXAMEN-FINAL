@@ -10,22 +10,45 @@ modulos = st.sidebar.selectbox(
 
 if modulos == "Home":
 
-    st.markdown("<h1 align='center'>APLICACIÓN INTERACTIVA CONSTRUIDA EN PYTHON UTILIZANDO STREAMLIT</h1>", unsafe_allow_html=True)
+st.markdown(
+    "<h1 align='center'>APLICACIÓN INTERACTIVA CONSTRUIDA EN PYTHON UTILIZANDO STREAMLIT</h1>",
+    unsafe_allow_html=True)
 
-    st.subheader("Nombre completo del estudiante")
-    st.markdown("Farid Estefano Garibay Fabian")
+st.su
+bheader("Breve descripción del objetivo del análisis")
 
-    st.subheader("Nombre del módulo")
-    st.markdown("Python Fundamentals")
+st.markdown(
+    """El objetivo del proyecto es aplicar los conocimientos adquiridos
+    durante el curso de Python Fundamentals para explorar, organizar
+    y analizar un conjunto de datos mediante herramientas de Python.""")
 
-    st.subheader("Información general del estudiante")
-    st.markdown("Soy contador y busco especializarme en análisis de datos para combinar mi experiencia financiera con nuevas herramientas tecnológicas y así potenciar mi perfil profesional.")
+st.subheader("DATOS DEL AUTOR")
 
-    st.subheader("Año")
-    st.markdown("2026")
+st.markdown("**Nombre completo:**")
+st.markdown("Farid Estefano Garibay Fabian")
 
-    st.subheader("Breve descripción del proyecto")
-    st.markdown("El proyecto facilita la aplicación práctica de lo aprendido en clase, consolidando los contenidos del primer módulo de Python Fundamentals.")
+st.markdown("**Curso / Especialización:**")
+st.markdown("Python Fundamentals")
 
-    st.subheader("Tecnologías utilizadas")
-    st.markdown("Python, Streamlit y GitHub.")
+st.markdown("**Año:**")
+st.markdown("2026")
+
+# Breve explicación del dataset
+st.subheader("Breve explicación del dataset")
+
+st.markdown(
+    """El análisis del dataset permitirá organizar la información, identificar
+    características relevantes de los datos y obtener resultados que serán
+    presentados de manera clara e interactiva mediante Streamlit.""")
+
+# Tecnologías utilizadas
+st.subheader("Tecnologías utilizadas")
+
+st.markdown(
+    """
+    - **Python:** lenguaje de programación utilizado para desarrollar el proyecto.
+    - **Pandas:** biblioteca utilizada para la manipulación y análisis de los datos.
+    - **Streamlit:** herramienta utilizada para crear la aplicación web interactiva.
+    - **GitHub:** plataforma utilizada para almacenar y gestionar el código del proyecto.
+    """
+)
