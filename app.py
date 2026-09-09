@@ -4,20 +4,10 @@ import matplotlib.pyplot as plt
 import io
 import os
 
-# ============================================================
-# CONFIGURACIÓN DE LA PÁGINA
-# ============================================================
-
 st.set_page_config(
     page_title="Proyecto Python Fundamentals",
     page_icon="📊",
-    layout="wide"
-)
-
-
-# ============================================================
-# CLASE POO - DataAnalyzer
-# ============================================================
+    layout="wide")
 
 class DataAnalyzer:
     """
@@ -140,11 +130,6 @@ class DataAnalyzer:
             .round(2)
         )
 
-
-# ============================================================
-# SIDEBAR
-# ============================================================
-
 st.sidebar.title("📚 Módulos")
 
 # Mostrar imagen solo si existe en el repositorio
@@ -162,11 +147,6 @@ modulos = st.sidebar.selectbox(
     ]
 )
 
-
-# ============================================================
-# MÓDULO 1: HOME
-# ============================================================
-
 if modulos == "Modulo 1: Home":
 
     st.markdown(
@@ -181,10 +161,6 @@ if modulos == "Modulo 1: Home":
 
     st.divider()
 
-    # --------------------------------------------------------
-    # OBJETIVO
-    # --------------------------------------------------------
-
     st.subheader("🎯 Objetivo del proyecto")
 
     st.write(
@@ -194,10 +170,6 @@ if modulos == "Modulo 1: Home":
         y analizar un conjunto de datos mediante herramientas de Python.
         """
     )
-
-    # --------------------------------------------------------
-    # DATOS DEL AUTOR
-    # --------------------------------------------------------
 
     st.subheader("👤 Datos del autor")
 
@@ -215,10 +187,6 @@ if modulos == "Modulo 1: Home":
         st.write("**Año**")
         st.write("2026")
 
-    # --------------------------------------------------------
-    # DATASET
-    # --------------------------------------------------------
-
     st.subheader("📊 Breve explicación del dataset")
 
     st.write(
@@ -231,10 +199,6 @@ if modulos == "Modulo 1: Home":
         de la campaña.
         """
     )
-
-    # --------------------------------------------------------
-    # TECNOLOGÍAS
-    # --------------------------------------------------------
 
     st.subheader("🛠️ Tecnologías utilizadas")
 
@@ -257,11 +221,6 @@ if modulos == "Modulo 1: Home":
         """
     )
 
-
-# ============================================================
-# MÓDULO 2: CARGA DEL DATASET
-# ============================================================
-
 elif modulos == "Modulo 2: Carga del dataset":
 
     st.title("📊 Módulo 2: Carga del Dataset")
@@ -276,20 +235,12 @@ elif modulos == "Modulo 2: Carga del dataset":
 
     st.divider()
 
-    # ========================================================
-    # CARGA DEL DATASET
-    # ========================================================
-
     st.header("📂 Carga del dataset")
 
     archivo = st.file_uploader(
         "Seleccione el archivo BankMarketing.csv",
         type=["csv"]
     )
-
-    # ========================================================
-    # VALIDACIÓN DEL ARCHIVO
-    # ========================================================
 
     if archivo is None:
 
@@ -305,10 +256,6 @@ elif modulos == "Modulo 2: Carga del dataset":
         )
 
         st.stop()
-
-    # ========================================================
-    # LECTURA DEL DATASET
-    # ========================================================
 
     try:
 
@@ -329,10 +276,6 @@ elif modulos == "Modulo 2: Carga del dataset":
 
         st.stop()
 
-    # ========================================================
-    # VALIDACIÓN DEL DATASET
-    # ========================================================
-
     if df.empty:
 
         st.error(
@@ -340,10 +283,6 @@ elif modulos == "Modulo 2: Carga del dataset":
         )
 
         st.stop()
-
-    # ========================================================
-    # VALIDACIÓN DE COLUMNAS
-    # ========================================================
 
     columnas_esperadas = [
         "age",
@@ -395,10 +334,6 @@ elif modulos == "Modulo 2: Carga del dataset":
             "de datos Bank Marketing."
         )
 
-    # ========================================================
-    # INFORMACIÓN GENERAL
-    # ========================================================
-
     st.header("📋 Información del dataset")
 
     st.write(
@@ -407,10 +342,6 @@ elif modulos == "Modulo 2: Carga del dataset":
         **{df.shape[1]} columnas**.
         """
     )
-
-    # ========================================================
-    # VISTA PREVIA - HEAD
-    # ========================================================
 
     st.subheader("👀 Vista previa del dataset")
 
@@ -426,10 +357,6 @@ elif modulos == "Modulo 2: Carga del dataset":
         use_container_width=True
     )
 
-    # ========================================================
-    # VISTA COMPLETA
-    # ========================================================
-
     st.subheader("👀 Vista completa del dataset")
 
     st.write(
@@ -444,10 +371,6 @@ elif modulos == "Modulo 2: Carga del dataset":
         use_container_width=True,
         height=600
     )
-
-    # ========================================================
-    # DIMENSIONES
-    # ========================================================
 
     st.header("📏 Dimensiones del dataset")
 
@@ -467,10 +390,6 @@ elif modulos == "Modulo 2: Carga del dataset":
             df.shape[1]
         )
 
-    # ========================================================
-    # INFORMACIÓN DEL ARCHIVO
-    # ========================================================
-
     st.header("ℹ️ Información del archivo")
 
     col1, col2 = st.columns(2)
@@ -487,19 +406,11 @@ elif modulos == "Modulo 2: Carga del dataset":
             f"{archivo.size / 1024:.2f} KB"
         )
 
-    # ========================================================
-    # CREACIÓN DEL OBJETO POO
-    # ========================================================
-
     analyzer = DataAnalyzer(df)
 
     variables_numericas, variables_categoricas = (
         analyzer.clasificar_variables()
     )
-
-    # ========================================================
-    # EDA
-    # ========================================================
 
     st.divider()
 
@@ -514,10 +425,6 @@ elif modulos == "Modulo 2: Carga del dataset":
         entre variables.
         """
     )
-
-    # ========================================================
-    # TABS 1 - 10
-    # ========================================================
 
     tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs(
         [
@@ -534,10 +441,6 @@ elif modulos == "Modulo 2: Carga del dataset":
         ]
     )
 
-    # ========================================================
-    # ÍTEM 1
-    # ========================================================
-
     with tab1:
 
         st.header(
@@ -552,10 +455,6 @@ elif modulos == "Modulo 2: Carga del dataset":
             """
         )
 
-        # ----------------------------------------------------
-        # INFO
-        # ----------------------------------------------------
-
         st.subheader("ℹ️ Información mediante .info()")
 
         buffer = io.StringIO()
@@ -567,10 +466,6 @@ elif modulos == "Modulo 2: Carga del dataset":
         st.text(
             buffer.getvalue()
         )
-
-        # ----------------------------------------------------
-        # TIPOS
-        # ----------------------------------------------------
 
         st.subheader("🔤 Tipos de datos")
 
@@ -585,10 +480,6 @@ elif modulos == "Modulo 2: Carga del dataset":
             tipos_datos,
             use_container_width=True
         )
-
-        # ----------------------------------------------------
-        # NULOS
-        # ----------------------------------------------------
 
         st.subheader("⚠️ Conteo de valores nulos")
 
@@ -605,10 +496,6 @@ elif modulos == "Modulo 2: Carga del dataset":
             tabla_nulos,
             use_container_width=True
         )
-
-        # ----------------------------------------------------
-        # MÉTRICAS
-        # ----------------------------------------------------
 
         col1, col2, col3 = st.columns(3)
 
@@ -632,11 +519,6 @@ elif modulos == "Modulo 2: Carga del dataset":
                 "Memoria aproximada",
                 f"{df.memory_usage(deep=True).sum() / 1024**2:.2f} MB"
             )
-
-
-    # ========================================================
-    # ÍTEM 2
-    # ========================================================
 
     with tab2:
 
@@ -735,10 +617,6 @@ elif modulos == "Modulo 2: Carga del dataset":
 
         plt.close(fig)
 
-
-    # ========================================================
-    # ÍTEM 3
-    # ========================================================
 
     with tab3:
 
@@ -878,11 +756,6 @@ elif modulos == "Modulo 2: Carga del dataset":
             """
         )
 
-
-    # ========================================================
-    # ÍTEM 4
-    # ========================================================
-
     with tab4:
 
         st.header(
@@ -1005,11 +878,6 @@ elif modulos == "Modulo 2: Carga del dataset":
                 """
             )
 
-
-    # ========================================================
-    # ÍTEM 5
-    # ========================================================
-
     with tab5:
 
         st.header(
@@ -1123,11 +991,6 @@ elif modulos == "Modulo 2: Carga del dataset":
                     """
                 )
 
-
-    # ========================================================
-    # ÍTEM 6
-    # ========================================================
-
     with tab6:
 
         st.header(
@@ -1225,11 +1088,6 @@ elif modulos == "Modulo 2: Carga del dataset":
             **{porcentaje_mayor:.2f}%** del total.
             """
         )
-
-
-    # ========================================================
-    # ÍTEM 7
-    # ========================================================
 
     with tab7:
 
@@ -1349,11 +1207,6 @@ elif modulos == "Modulo 2: Carga del dataset":
                 "⚠️ No se encontró la variable objetivo 'y'."
             )
 
-
-    # ========================================================
-    # ÍTEM 8
-    # ========================================================
-
     with tab8:
 
         st.header(
@@ -1465,11 +1318,6 @@ elif modulos == "Modulo 2: Carga del dataset":
                 "⚠️ No se encontró la variable objetivo 'y'."
             )
 
-
-    # ========================================================
-    # ÍTEM 9
-    # ========================================================
-
     with tab9:
 
         st.header(
@@ -1483,10 +1331,6 @@ elif modulos == "Modulo 2: Carga del dataset":
             """
         )
 
-        # ----------------------------------------------------
-        # SELECTBOX
-        # ----------------------------------------------------
-
         st.subheader(
             "🎯 Selección principal"
         )
@@ -1497,20 +1341,12 @@ elif modulos == "Modulo 2: Carga del dataset":
             key="selectbox_item9"
         )
 
-        # ----------------------------------------------------
-        # MULTISELECT NUMÉRICAS
-        # ----------------------------------------------------
-
         variables_num_seleccionadas = st.multiselect(
             "Seleccione variables numéricas:",
             variables_numericas,
             default=variables_numericas[:2],
             key="multiselect_num_item9"
         )
-
-        # ----------------------------------------------------
-        # MULTISELECT CATEGÓRICAS
-        # ----------------------------------------------------
 
         variables_cat_seleccionadas = st.multiselect(
             "Seleccione variables categóricas:",
@@ -1519,19 +1355,11 @@ elif modulos == "Modulo 2: Carga del dataset":
             key="multiselect_cat_item9"
         )
 
-        # ----------------------------------------------------
-        # CHECKBOX
-        # ----------------------------------------------------
-
         mostrar_estadisticas = st.checkbox(
             "Mostrar estadísticas descriptivas",
             value=True,
             key="checkbox_item9"
         )
-
-        # ----------------------------------------------------
-        # SLIDER
-        # ----------------------------------------------------
 
         limite_categorias = st.slider(
             "Número máximo de categorías a visualizar:",
@@ -1541,10 +1369,6 @@ elif modulos == "Modulo 2: Carga del dataset":
             step=1,
             key="slider_item9"
         )
-
-        # ----------------------------------------------------
-        # VARIABLE PRINCIPAL
-        # ----------------------------------------------------
 
         st.subheader(
             f"📊 Análisis de {variable_principal}"
@@ -1577,10 +1401,6 @@ elif modulos == "Modulo 2: Carga del dataset":
                 f"{resumen_principal['desviacion']:,.2f}"
             )
 
-        # ----------------------------------------------------
-        # ESTADÍSTICAS
-        # ----------------------------------------------------
-
         if mostrar_estadisticas:
 
             if variables_num_seleccionadas:
@@ -1603,10 +1423,6 @@ elif modulos == "Modulo 2: Carga del dataset":
                 st.warning(
                     "Seleccione al menos una variable numérica."
                 )
-
-        # ----------------------------------------------------
-        # CATEGÓRICAS
-        # ----------------------------------------------------
 
         if variables_cat_seleccionadas:
 
@@ -1669,11 +1485,6 @@ elif modulos == "Modulo 2: Carga del dataset":
             """
         )
 
-
-    # ========================================================
-    # ÍTEM 10
-    # ========================================================
-
     with tab10:
 
         st.header(
@@ -1686,10 +1497,6 @@ elif modulos == "Modulo 2: Carga del dataset":
             derivados del análisis exploratorio de datos.
             """
         )
-
-        # ----------------------------------------------------
-        # RESUMEN GENERAL
-        # ----------------------------------------------------
 
         st.subheader(
             "📊 Resumen general del dataset"
@@ -1725,10 +1532,6 @@ elif modulos == "Modulo 2: Carga del dataset":
                 len(variables_categoricas)
             )
 
-        # ----------------------------------------------------
-        # VALORES FALTANTES
-        # ----------------------------------------------------
-
         total_nulos = analyzer.valores_faltantes().sum()
 
         st.subheader(
@@ -1746,10 +1549,6 @@ elif modulos == "Modulo 2: Carga del dataset":
             st.warning(
                 f"Se identificaron {total_nulos:,} valores faltantes."
             )
-
-        # ----------------------------------------------------
-        # VARIABLE OBJETIVO
-        # ----------------------------------------------------
 
         if "y" in df.columns:
 
@@ -1804,10 +1603,6 @@ elif modulos == "Modulo 2: Carga del dataset":
                     use_container_width=True
                 )
 
-            # ------------------------------------------------
-            # GRÁFICO RESUMEN
-            # ------------------------------------------------
-
             st.subheader(
                 "📈 Visualización resumen"
             )
@@ -1836,10 +1631,6 @@ elif modulos == "Modulo 2: Carga del dataset":
             st.pyplot(fig)
 
             plt.close(fig)
-
-            # ------------------------------------------------
-            # HALLAZGOS
-            # ------------------------------------------------
 
             resultado_mayoritario = resultados.idxmax()
 
@@ -1909,10 +1700,6 @@ elif modulos == "Modulo 2: Carga del dataset":
             st.warning(
                 "⚠️ No se encontró la variable objetivo 'y'."
             )
-
-        # ----------------------------------------------------
-        # CONCLUSIÓN
-        # ----------------------------------------------------
 
         st.subheader(
             "🎓 Conclusión del EDA"
