@@ -14,8 +14,7 @@ st.markdown(
     "<h1 align='center'>APLICACIÓN INTERACTIVA CONSTRUIDA EN PYTHON UTILIZANDO STREAMLIT</h1>",
     unsafe_allow_html=True)
 
-st.su
-bheader("Breve descripción del objetivo del análisis")
+st.subheader("Breve descripción del objetivo del análisis")
 
 st.markdown(
     """El objetivo del proyecto es aplicar los conocimientos adquiridos
