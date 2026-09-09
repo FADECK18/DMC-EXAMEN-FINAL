@@ -25,7 +25,7 @@ st.sidebar.image(
 
 modulos = st.sidebar.selectbox(
     "Seleccione un módulo:",
-    ["Home", "Modulo 1", "Modulo 2"]
+    ["Modulo 1: Home", "Modulo 2: Carga el datased"]
 )
 
 
@@ -33,7 +33,7 @@ modulos = st.sidebar.selectbox(
 # HOME
 # ============================================================
 
-if modulos == "Modulo 1":
+if modulos == "Modulo 1: Home":
 
     st.markdown(
         """
@@ -120,7 +120,7 @@ if modulos == "Modulo 1":
 # MÓDULO 1
 # ============================================================
 
-elif modulos == "Modulo 2":
+elif modulos == "Modulo 2: Carga del dataset":
 
     st.title("📘 Módulo 1")
 
@@ -134,7 +134,7 @@ elif modulos == "Modulo 2":
 # MÓDULO 2
 # ============================================================
 
-elif modulos == "Modulo 2":
+elif modulos == "Modulo 2: Carga del dataset":
 
     st.title(
         "📊 Módulo 2: Carga del Dataset y Análisis Exploratorio de Datos"
