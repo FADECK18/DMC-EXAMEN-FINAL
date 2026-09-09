@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import io
-import matplotlib.pyplot as plt
 
 # ============================================================
 # CONFIGURACIÓN DE LA PÁGINA
