@@ -20,7 +20,7 @@ if modulos == "Home":
     )
 
     # Imagen principal
-    st.image("IMAGEN PYTHON_N.png")
+    st.image("IMAGEN PYTHON_N.png", width=50)
 
     # Breve descripción del objetivo del análisis
     st.subheader("Breve descripción del objetivo del análisis")
