@@ -1,11 +1,7 @@
 import streamlit as st
 
- st.sidebar.image("IMAGEN PYTHON_N.png", width=100)
-
 # Menú lateral
 st.sidebar.title("Módulo")
-
-st.sidebar.image("IMAGEN DMC.png", width=100)
 
 modulos = st.sidebar.selectbox(
     "Seleccione un módulo:",
@@ -18,6 +14,8 @@ if modulos == "Home":
     st.markdown(
         "<h1 align='center'>APLICACIÓN INTERACTIVA CONSTRUIDA EN PYTHON UTILIZANDO STREAMLIT</h1>",
         unsafe_allow_html=True)
+
+ st.sidebar.image("IMAGEN DMC.png", width=100)
 
     # Breve descripción del objetivo del análisis
     st.subheader("Breve descripción del objetivo del análisis")
