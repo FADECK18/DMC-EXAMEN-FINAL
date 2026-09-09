@@ -1,11 +1,15 @@
+```python
 import streamlit as st
 
 # Menú lateral
 st.sidebar.title("Módulo")
 
+st.sidebar.image("IMAGEN DMC.png", width=100)
+
 modulos = st.sidebar.selectbox(
     "Seleccione un módulo:",
-    ["Home", "Modulo 1", "Modulo 2", "Modulo 3"])
+    ["Home", "Modulo 1", "Modulo 2", "Modulo 3"]
+)
 
 # Módulo Home
 if modulos == "Home":
@@ -13,9 +17,8 @@ if modulos == "Home":
     # Título del proyecto
     st.markdown(
         "<h1 align='center'>APLICACIÓN INTERACTIVA CONSTRUIDA EN PYTHON UTILIZANDO STREAMLIT</h1>",
-        unsafe_allow_html=True)
-
- st.sidebar.image("IMAGEN DMC.png", width=100)
+        unsafe_allow_html=True
+    )
 
     # Breve descripción del objetivo del análisis
     st.subheader("Breve descripción del objetivo del análisis")
@@ -72,3 +75,4 @@ if modulos == "Home":
         - **GitHub:** plataforma utilizada para almacenar y gestionar el código del proyecto.
         """
     )
+```
