@@ -12,7 +12,7 @@ if modulos == "Home":
 
     st.markdown("<h1 align='center'>APLICACIÓN EN STREAMLIT</h1>", unsafe_allow_html=True)
 
-    st.image("foto de python.jpg")
+    st.image("IMAGEN PYTHON_N.png")
     st.write("**Docente**: Carlos Carrillo Villavicencio")
 
     st.subheader("Nombre completo del estudiante")
