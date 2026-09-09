@@ -247,4 +247,3 @@ elif modulos == "Modulo 2":
             "Número de columnas",
             df.shape[1]
         )
-```
