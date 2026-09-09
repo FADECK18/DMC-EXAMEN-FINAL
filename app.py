@@ -84,33 +84,5 @@ if modulos == "Home":
 # -----------------------------
 elif modulos == "Modulo 1":
 
-    st.title("Módulo 1")
 
-    st.subheader("Vista general del dataset")
 
-    st.write("Número de filas:", df.shape[0])
-    st.write("Número de columnas:", df.shape[1])
-
-    st.dataframe(df.head())
-
-# -----------------------------
-# MÓDULO 2
-# -----------------------------
-elif modulos == "Modulo 2":
-
-    st.title("Módulo 2")
-
-    st.subheader("Información del dataset")
-
-    st.dataframe(df.describe(include="all"))
-
-# -----------------------------
-# MÓDULO 3
-# -----------------------------
-elif modulos == "Modulo 3":
-
-    st.title("Módulo 3")
-
-    st.subheader("Datos completos")
-
-    st.dataframe(df)
