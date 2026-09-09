@@ -1,4 +1,3 @@
-```python
 import streamlit as st
 
 # Menú lateral
@@ -75,4 +74,3 @@ if modulos == "Home":
         - **GitHub:** plataforma utilizada para almacenar y gestionar el código del proyecto.
         """
     )
-```
